@@ -12,17 +12,21 @@ typedef struct {
 } RSAKeyPair;
 
 
-void getRSAKeyPair(void);
+RSAKeyPair getRSAKeyPair(void);
 
 int main(void)
 {
 	printf("Hello blockchain !\n");
-	getRSAKeyPair();
+	RSAKeyPair kpair = getRSAKeyPair();
+
+	free(kpair.pKey);
+	free(kpair.sKey);
 	return EXIT_SUCCESS;
 }
 
-void getRSAKeyPair(void)
+RSAKeyPair getRSAKeyPair(void)
 {
+	RSAKeyPair keyPair = {0};
 	BIGNUM* bigNum = BN_new();
 	BN_set_word(bigNum, RSA_F4);
 
@@ -56,6 +60,38 @@ void getRSAKeyPair(void)
 	printf("%s\n", pri_key);
 	printf("%s\n", pub_key);
 
+	BIO* priv_key_bio = NULL;
+	priv_key_bio = BIO_new_mem_buf((void*)pri_key, pub_len);
+	BIO* pub_key_bio = NULL;
+	pub_key_bio = BIO_new_mem_buf((void*)pub_key, pub_len);
+
+	RSA* pri_rsa = NULL;
+	RSA* pub_rsa = NULL;
+
+	pri_rsa = PEM_read_bio_RSAPrivateKey(priv_key_bio, &pri_rsa, NULL, NULL);		/* now we read the BIO to get the RSA key */
+	pub_rsa = PEM_read_bio_RSAPublicKey(pub_key_bio, &pub_rsa, NULL, NULL);
+
+	EVP_PKEY* evp_pri_key = EVP_PKEY_new();											/* we want EVP keys , openssl libraries work best with this type, https://wiki.openssl.org/index.php/EVP */
+	EVP_PKEY_assign_RSA(evp_pri_key, pri_rsa);
+
+	EVP_PKEY* evp_pub_key = EVP_PKEY_new();
+	EVP_PKEY_assign_RSA(evp_pub_key, pub_rsa);
+
+	/* menage */
 	free(pri_key);
 	free(pub_key);
+
+	BIO_free_all(bp_private);
+	BIO_free_all(bp_public);
+
+	BIO_free(priv_key_bio);
+	BIO_free(pub_key_bio);
+
+	BN_free(bigNum);
+	RSA_free(rsa);
+
+	keyPair.pKey = evp_pub_key;
+	keyPair.sKey = evp_pri_key;
+
+	return keyPair;
 }
