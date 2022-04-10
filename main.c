@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include <openssl/pem.h>
 #include <openssl/evp.h>
 #include <openssl/bio.h>
 #include <openssl/err.h>
+#include "defs.h"
 
 typedef struct {
 	EVP_PKEY* pKey;
@@ -13,6 +16,10 @@ typedef struct {
 
 
 RSAKeyPair getRSAKeyPair(void);
+int writeKeyToFile(uint8_t* keyString, KeyType keyType);
+uint8_t* concat(const uint8_t* strA, const uint8_t* strB);
+EVP_PKEY* GenerKey();
+void writeToFile(EVP_PKEY* pkey);
 
 int main(void)
 {
@@ -54,11 +61,22 @@ RSAKeyPair getRSAKeyPair(void)
 	{
 		pri_key[pri_len] = '\0';
 		pub_key[pub_len] = '\0';
-	}
 
-	printf("DEBUG : Print keys to stdout\n");
-	printf("%s\n", pri_key);
-	printf("%s\n", pub_key);
+		printf("DEBUG : Print keys to stdout\n");
+		printf("%s\n", pri_key);
+		printf("%s\n", pub_key);
+		puts("\n");
+
+		writeKeyToFile(pri_key, PRIVATE_KEY);
+		
+		//size_t begin = strlen("-----BEGIN RSA PRIVATE KEY-----");
+
+		//size_t end = strlen("-----END RSA PRIVATE KEY-----");
+
+
+		//printf("Size of private key : %zu\n", strlen(pri_key) - (begin + end));
+		//printf("Size of public key : %zu\n", strlen(pub_key));
+	}
 
 	BIO* priv_key_bio = NULL;
 	priv_key_bio = BIO_new_mem_buf((void*)pri_key, pub_len);
@@ -94,4 +112,122 @@ RSAKeyPair getRSAKeyPair(void)
 	keyPair.sKey = evp_pri_key;
 
 	return keyPair;
+}
+
+int writeKeyToFile(uint8_t* keyString, KeyType keyType)
+{
+	FILE* fp;
+
+	uint8_t* path = "C:\\Users\\lain\\Desktop\\test_blockchain_c\\";
+	uint8_t* filename = keyType == PUBLIC_KEY ? "public.pem" : "private.pem";
+
+	/*const size_t pathBufferLength = strlen(path) + strlen(filename) + 1;
+	uint8_t* keyPath = malloc(pathBufferLength);*/
+
+	uint8_t* keyPath = concat(path, filename);
+
+	if (keyPath == NULL) return -1;
+	
+	fp = fopen(keyPath, "w");
+
+	if (fp)
+		fputs(keyString, fp);
+	else
+	{
+		printf("Failed to open file : %s\n", keyPath);
+		return -1;
+	}
+	
+	fclose(fp);
+	free(keyPath);
+
+	return 0;
+}
+
+uint8_t* concat(const uint8_t* strA, const uint8_t* strB)
+{
+	uint8_t* result;
+
+	result = malloc(strlen(strA) + strlen(strB) + 1);	// +1 for the null terminator;
+	if (result == NULL) exit(-1);
+
+	strcpy(result, strA);
+	strcat(result, strB);
+
+	return result;
+}
+
+
+EVP_PKEY* GenerKey()
+{
+
+	//1. Create an RSA public key encryption context, parameter 1 is the algorithm type
+	EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
+	if (!ctx)
+	{
+		ERR_print_errors_fp(stderr);
+		EVP_PKEY_CTX_free(ctx);
+		return NULL;
+	}
+	//2, initialization key pair generation context
+	int ret = EVP_PKEY_keygen_init(ctx);
+	if (!ret)
+	{
+		ERR_print_errors_fp(stderr);
+		EVP_PKEY_CTX_free(ctx);
+		return NULL;
+	}
+	//Set parameters, RSA's key bits 1024 bits
+	if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, 1024) <= 0)
+	{
+		ERR_print_errors_fp(stderr);
+		EVP_PKEY_CTX_free(ctx);
+		return NULL;
+	}
+	//4, key generation
+	EVP_PKEY* pkey = NULL;
+	//Interior has a malloc application
+	if (EVP_PKEY_keygen(ctx, &pkey) <= 0)
+	{
+		ERR_print_errors_fp(stderr);
+		EVP_PKEY_CTX_free(ctx);
+		return NULL;
+	}
+	EVP_PKEY_CTX_free(ctx);
+	FILE* fp1 = fopen("./public.pem", "w");
+	if (!fp1)
+	{
+		//Error handling
+	}
+	PEM_write_RSAPublicKey(fp1, EVP_PKEY_get0_RSA(pkey));
+	FILE* fp2 = fopen("./private.pem", "w");
+	if (!fp2)
+	{
+		//Error handling
+	}
+	//Store in a clear text
+	PEM_write_RSAPrivateKey(fp2, EVP_PKEY_get0_RSA(pkey),
+		NULL,//Encrypted context
+		NULL,//key
+		0,//Key length
+		NULL,//Callback
+		NULL //Tune parameters
+	);
+	fclose(fp1);
+	fclose(fp2);
+	return pkey;
+}
+
+void writeToFile(EVP_PKEY* pkey)
+{
+	FILE* fp2 = fopen("./private.pem", "w");
+	//Store in a clear text
+	PEM_write_RSAPrivateKey(fp2, EVP_PKEY_get0_RSA(pkey),
+		NULL,//Encrypted context
+		NULL,//key
+		0,//Key length
+		NULL,//Callback
+		NULL //Tune parameters
+	);
+	fclose(fp2);
 }

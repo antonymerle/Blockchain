@@ -51,11 +51,11 @@ pair<EVP_PKEY*, EVP_PKEY*> GetKeyRSApair()
     pb_rsa = PEM_read_bio_RSAPublicKey(pbkeybio, &pb_rsa, NULL, NULL);  //now we read the BIO to get the RSA key
     p_rsa = PEM_read_bio_RSAPrivateKey(prkeybio, &p_rsa, NULL, NULL);
 
-    EVP_PKEY* evp_pbkey = EVP_PKEY_new();  //we want EVP keys , openssl libraries work best with this type, https://wiki.openssl.org/index.php/EVP
-    EVP_PKEY_assign_RSA(evp_pbkey, pb_rsa);
-
     EVP_PKEY* evp_prkey = EVP_PKEY_new();
     EVP_PKEY_assign_RSA(evp_prkey, p_rsa);
+
+    EVP_PKEY* evp_pbkey = EVP_PKEY_new();  //we want EVP keys , openssl libraries work best with this type, https://wiki.openssl.org/index.php/EVP
+    EVP_PKEY_assign_RSA(evp_pbkey, pb_rsa);
 
     //clean up
     free(pri_key); free(pub_key);
