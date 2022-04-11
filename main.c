@@ -242,6 +242,8 @@ void getEVP_PKEY(void)
 {
 	FILE* fp;
 
+	RSA* rsa = RSA_new();
+
 	EVP_PKEY* key = EVP_PKEY_new();
 	EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
 	EVP_PKEY_keygen_init(ctx);
@@ -249,11 +251,11 @@ void getEVP_PKEY(void)
 	EVP_PKEY_keygen(ctx, &key);
 
 	fp = fopen("private.pem", "w");
-	PEM_write_PrivateKey(fp, key, EVP_aes_256_cbc(), NULL, 0, NULL, NULL);
+	PEM_write_PrivateKey(fp, key, EVP_aes_256_cbc(), NULL, 0, NULL, NULL);		// EVP_aes_256_cbc() pour crypter, NULL pour écrire la clé en clair
 	fclose(fp);
 
 	fp = fopen("public.pem", "w");
-	/*i2d_PUBKEY_fp(fp, key);*/
+
 	PEM_write_PUBKEY(fp, key);
 	fclose(fp);
 
