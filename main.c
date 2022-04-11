@@ -7,6 +7,7 @@
 #include <openssl/evp.h>
 #include <openssl/bio.h>
 #include <openssl/err.h>
+#include <openssl/applink.c>
 #include "defs.h"
 
 typedef struct {
@@ -21,13 +22,18 @@ uint8_t* concat(const uint8_t* strA, const uint8_t* strB);
 EVP_PKEY* GenerKey();
 void writeToFile(EVP_PKEY* pkey);
 
+void getEVP_PKEY(void);
+
 int main(void)
 {
 	printf("Hello blockchain !\n");
-	RSAKeyPair kpair = getRSAKeyPair();
+	//RSAKeyPair kpair = getRSAKeyPair();
 
-	free(kpair.pKey);
-	free(kpair.sKey);
+	//free(kpair.pKey);
+	//free(kpair.sKey);
+
+	getEVP_PKEY();
+
 	return EXIT_SUCCESS;
 }
 
@@ -230,4 +236,26 @@ void writeToFile(EVP_PKEY* pkey)
 		NULL //Tune parameters
 	);
 	fclose(fp2);
+}
+
+void getEVP_PKEY(void)
+{
+	FILE* fp;
+
+	EVP_PKEY* key = EVP_PKEY_new();
+	EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
+	EVP_PKEY_keygen_init(ctx);
+	EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, 4096);
+	EVP_PKEY_keygen(ctx, &key);
+
+	fp = fopen("private.pem", "w");
+	PEM_write_PrivateKey(fp, key, EVP_aes_256_cbc(), NULL, 0, NULL, NULL);
+	fclose(fp);
+
+	fp = fopen("public.pem", "w");
+	/*i2d_PUBKEY_fp(fp, key);*/
+	PEM_write_PUBKEY(fp, key);
+	fclose(fp);
+
+	EVP_PKEY_CTX_free(ctx);
 }
