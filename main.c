@@ -1,13 +1,8 @@
-#include <openssl/pem.h>
 #include <openssl/evp.h>
-#include <openssl/bio.h>
-#include <openssl/err.h>
 #include <openssl/applink.c>
 #include "common.h"
+#include "account.h"
 
-
-void writeKeysPEM(EVP_PKEY* key, const uint8_t* path);
-EVP_PKEY* newEVP_PKEY(void);
 
 int main(void)
 {
@@ -23,43 +18,4 @@ int main(void)
 	}
 
 	return EXIT_SUCCESS;
-}
-
-EVP_PKEY* newEVP_PKEY(void)
-{
-	RSA* rsa;
-	EVP_PKEY* key;
-	EVP_PKEY_CTX* ctx;
-
-	rsa = RSA_new();
-	key = EVP_PKEY_new();
-	ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
-	EVP_PKEY_keygen_init(ctx);
-	EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, 2048);
-	EVP_PKEY_keygen(ctx, &key);
-
-	RSA_free(rsa);
-	EVP_PKEY_CTX_free(ctx);
-
-	return key;
-}
-
-void writeKeysPEM(EVP_PKEY* key, const uint8_t* path)
-{
-	FILE* fp;
-
-	const uint8_t* skeyPath = concat(path, "private.pem");
-	const uint8_t* pkeyPath = concat(path, "public.pem");
-
-	fp = fopen(skeyPath, "w");
-	PEM_write_PrivateKey(fp, key, NULL, NULL, 0, NULL, NULL);		// EVP_aes_256_cbc() pour crypter, NULL pour écrire la clé en clair
-	fclose(fp);
-
-	fp = fopen(pkeyPath, "w");
-
-	PEM_write_PUBKEY(fp, key);
-	fclose(fp);
-
-	free(skeyPath);
-	free(pkeyPath);
 }
