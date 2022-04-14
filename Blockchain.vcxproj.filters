@@ -27,6 +27,9 @@
     <ClCompile Include="digest.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sign.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="digest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sign.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
