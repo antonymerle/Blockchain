@@ -11,3 +11,10 @@
 #include "defs.h"
 #include "env.h"
 #include "utils.h"
+
+
+typedef struct {
+	uint8_t nom[32];
+	uint8_t prenom[32];
+	size_t taille;
+} Personne;
