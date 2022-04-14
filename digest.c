@@ -72,6 +72,8 @@ int hashData(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* data)			// 256 bits, 
 {
 	SHA256_CTX ctx;
 
+	memset(binmd, '\0', SHA256_DIGEST_LENGTH);
+
 	if (SHA256_Init(&ctx) == 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
@@ -96,26 +98,18 @@ int hashData(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* data)			// 256 bits, 
 
 
 /*
-* Returns an heap-allocated hexadecimal representation of an SHA256 hash that can be displayed as a normal string.
-* Since it's an hexadecimal representation, 4 bits are enough to encode each character (instead of 8, like for ASCII),
+* Writes in hexmd buffer an hexadecimal representation of a SHA256 hash that can be displayed as a string.
+* Since it is an hexadecimal representation, 4 bits are enough to encode each character (instead of 8, like for ASCII),
 * so 256 bits can be layed on 64 hex characters.
 */
-uint8_t* hash2Hex(uint8_t binmd[SHA256_DIGEST_LENGTH])
+int hash2Hex(uint8_t hexmd[HEX_SHA256_NULLT_LEN], uint8_t binmd[SHA256_DIGEST_LENGTH])
 {
-	uint8_t* buf;
 	size_t i;
 
-	buf = malloc(HEX_SHA256_LEN + 1);
-	if (buf == NULL)
-	{
-		fprintf(stderr, "%s", "Impossible d'allouer la mémoire.\n");
-		exit(1);
-	}
-
-	memset(buf, '\0', HEX_SHA256_LEN + 1);
+	memset(hexmd, '\0', HEX_SHA256_NULLT_LEN);
 
 	for (i = 0; i < SHA256_DIGEST_LENGTH; i++)
-		sprintf(&buf[i * 2], "%02x", binmd[i]);
+		sprintf(&hexmd[i * 2], "%02x", binmd[i]);
 
-	return buf;
+	return 0;
 }

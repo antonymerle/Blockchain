@@ -22,18 +22,19 @@ int main(void)
 
 
 	uint8_t hashResult[SHA256_DIGEST_LENGTH] = { 0 };
+	uint8_t hexHash[HEX_SHA256_NULLT_LEN] = { 0 };
 
 	hashFile(hashResult, path);
 
-	uint8_t* hashFichier = hash2Hex(hashResult);
+	hash2Hex(hexHash, hashResult);
 
 	printf("hash fichier : ");
-	printf("%s\n", hashFichier);
+	printf("%s\n", hexHash);
 
-	memset(hashResult, '\0', SHA256_DIGEST_LENGTH);
+
 	hashData(hashResult, "Hello world !");
-	uint8_t* hashStr = hash2Hex(hashResult);
-	printf("hash string : %s\n", hashStr);
+	hash2Hex(hexHash, hashResult);
+	printf("hash string : %s\n", hexHash);
 
 	Personne personne = { .prenom = "Antony", .nom = "Merle", .taille = 177};
 
@@ -47,9 +48,6 @@ int main(void)
 
 	//printf("hash struct : %s\n", hashStruct);
 
-
-	free(hashFichier);
-	free(hashStr);
 
 	return EXIT_SUCCESS;
 }
