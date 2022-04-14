@@ -44,7 +44,8 @@ int main(void)
 
 	printf("%s %s %zu cm\n", personne.prenom, personne.nom, personne.taille);
 
-	signFile(signature, key, path);
+	hashFile(hashResult, path);
+	signFile2(key, hashResult);
 
 		//memset(hashResult, '\0', SHA256_DIGEST_LENGTH);
 
