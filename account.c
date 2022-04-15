@@ -38,3 +38,26 @@ void writeKeysPEM(EVP_PKEY* key, const uint8_t* path)
 	free(skeyPath);
 	free(pkeyPath);
 }
+
+// create a EVP_PKEY structure from private key
+
+int loadKeyFromPEMFile(EVP_PKEY** key, const uint8_t* filePath)
+{
+	FILE* fp;
+	
+	if (filePath == NULL)
+		return 1;
+
+	fp = fopen(filePath, "r");
+
+	if (fp == NULL)
+	{
+		fprintf(stderr, "%s : %s\n", "Impossible d'ouvrir le chemin", filePath);
+		return 1;
+	}
+
+	PEM_read_PrivateKey(fp, key, NULL, NULL);
+	PEM_write_PrivateKey(stdout, *key, NULL, NULL, 0, NULL, NULL);
+
+	return 0;
+}

@@ -26,7 +26,7 @@ int main(void)
 
 	uint8_t hashResult[SHA256_DIGEST_LENGTH] = { 0 };
 	uint8_t hexHash[HEX_SHA256_NULLT_LEN] = { 0 };
-	uint8_t signature[SHA256_DIGEST_LENGTH] = { 0 };
+	//uint8_t signature[SHA256_DIGEST_LENGTH] = { 0 };
 
 	hashFile(hashResult, path);
 
@@ -45,7 +45,8 @@ int main(void)
 	printf("%s %s %zu cm\n", personne.prenom, personne.nom, personne.taille);
 
 	hashFile(hashResult, path);
-	signFile2(key, hashResult);
+
+	uint8_t* signature = signFile(key, hashResult);
 
 		//memset(hashResult, '\0', SHA256_DIGEST_LENGTH);
 
@@ -57,6 +58,22 @@ int main(void)
 
 	free(path);
 	EVP_PKEY_free(key);
+
+	//==================
+	const uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
+
+	EVP_PKEY* keyfromfile = EVP_PKEY_new();
+
+	loadKeyFromPEMFile(&keyfromfile, pathKey);
+
+	BIO* bio = NULL;
+	bio = BIO_new_fp(stdout, BIO_NOCLOSE);
+
+	printf("\n\n");
+	//EVP_PKEY_print_private(bio, keyfromfile, 1, NULL);
+
+	EVP_PKEY_free(keyfromfile);
+	BIO_free(bio);
 
 	return EXIT_SUCCESS;
 }
