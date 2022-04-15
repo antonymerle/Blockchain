@@ -1,7 +1,7 @@
 #include "sign.h"
 
 
-int signFile(uint8_t signature[SHA256_DIGEST_LENGTH],	EVP_PKEY* skey, const uint8_t* filePath)
+int signFile2(uint8_t signature[SHA256_DIGEST_LENGTH],	EVP_PKEY* skey, const uint8_t* filePath)
 {
 	FILE* fp;
 	EVP_MD_CTX* ctx;
@@ -73,7 +73,7 @@ int signFile(uint8_t signature[SHA256_DIGEST_LENGTH],	EVP_PKEY* skey, const uint
 	return 0;
 }
 
-int signFile2(EVP_PKEY* skey, const uint8_t* md)
+uint8_t* signFile(EVP_PKEY* skey, const uint8_t* md)
 {
 	FILE* fp;
 	uint8_t* signature;
@@ -92,29 +92,31 @@ int signFile2(EVP_PKEY* skey, const uint8_t* md)
 	if (!ctx)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
-		return 1;
+		return NULL;
 	}
 	if (EVP_PKEY_sign_init(ctx) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
-		return 1;
+		return NULL;
 		}
 	if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
-		return 1;
+		return NULL;
 			}
 	if (EVP_PKEY_CTX_set_signature_md(ctx, EVP_sha256()) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
-		return 1;
+		return NULL;
 	}
 
+	// TODO : est-ce qu'on est pas toujours sur 256 bytes ?
+	// TODO : dans ce cas là, pas besoin d'allouer de la mémoire dynamiquement
 	/* Determine buffer length */
 	if (EVP_PKEY_sign(ctx, NULL, &siglen, md, mdlen) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
-		return 1;
+		return NULL;
 	}
 
 	signature = malloc(siglen);
@@ -130,7 +132,7 @@ int signFile2(EVP_PKEY* skey, const uint8_t* md)
 	if (EVP_PKEY_sign(ctx, signature, &siglen, md, mdlen) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
-		return 1;
+		return NULL;
 	}
 
 	printf("Signature is: ");
@@ -139,6 +141,5 @@ int signFile2(EVP_PKEY* skey, const uint8_t* md)
 		printf("%02x", signature[i]);
 	printf("\n");
 
-	free(signature);
-	return 0;
+	return signature;
 }
