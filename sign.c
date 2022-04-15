@@ -125,14 +125,15 @@ uint8_t* signFile(EVP_PKEY* skey, const uint8_t* md)
 	}
 
 	signature = malloc(siglen);
-	//memset(signature, '\0', siglen);
 
 
-	//if (!sig)
-	//{
-	//	fprintf(stderr, "%s", "Impossible d'allouer la mémoire.\n");
-	//	exit(1);
-	//}
+	if (signature == NULL)
+	{
+		fprintf(stderr, "%s", "Impossible d'allouer la mémoire.\n");
+		exit(1);
+	}
+
+	memset(signature, '\0', siglen);
 
 	if (EVP_PKEY_sign(ctx, signature, &siglen, md, mdlen) <= 0)
 	{
@@ -141,11 +142,11 @@ uint8_t* signFile(EVP_PKEY* skey, const uint8_t* md)
 		return NULL;
 	}
 
-	//printf("Signature is: ");
-	//int i;
-	//for (i = 0; i < siglen; i++)
-	//	printf("%02x", signature[i]);
-	//printf("\n");
+	printf("Signature is: ");
+	int i;
+	for (i = 0; i < siglen; i++)
+		printf("%02x", signature[i]);
+	printf("\n");
 
 	EVP_PKEY_CTX_free(ctx);
 	return signature;
