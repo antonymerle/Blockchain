@@ -39,7 +39,6 @@ void writeKeysPEM(EVP_PKEY* key, const uint8_t* path)
 	free(pkeyPath);
 }
 
-// 
 /*
 * Fills an empty EVP_PKEY structure with skey and pkey
 * EVP_PKEY* emptyEVP = EVP_PKEY_new();
@@ -61,15 +60,9 @@ int loadKeyFromPEMFile(EVP_PKEY** key, const uint8_t* filePath)
 	}
 
 	PEM_read_PrivateKey(fp, key, NULL, NULL);
+
 	fclose(fp);
 	
-	print_PEM_key(*key, PKEY);
-	puts("\n");
-	print_PEM_key(*key, SKEY);
-	puts("\n");
-
-	
-
 	return 0;
 }
 

@@ -76,12 +76,14 @@ int main(void)
 	BIO* bio = NULL;
 	bio = BIO_new_fp(stdout, BIO_NOCLOSE);
 
-	printf("\n\n");
+	print_PEM_key(keyfromfile, PKEY);
+	puts("\n");
+	print_PEM_key(keyfromfile, SKEY);
+	puts("\n");
 
 	EVP_PKEY_free(keyfromfile);
 	BIO_free(bio);
 	free(pathKey);
-
 
 	// no leak
 	return EXIT_SUCCESS;
