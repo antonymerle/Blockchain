@@ -40,24 +40,37 @@ int main(void)
 	hash2Hex(hexHash, hashResult);
 	printf("hash string : %s\n", hexHash);
 
-	Personne personne = { .prenom = "Antony", .nom = "Merle", .taille = 177};
+	Personne personne = { .prenom = "Antony", .nom = "Merle", .taille = 177 };
 
 	printf("%s %s %zu cm\n", personne.prenom, personne.nom, personne.taille);
 
+
 	hashFile(hashResult, path);
 
-	uint8_t* signature = signFile(key, hashResult);
+	free(path);
+	// no leak
+
+	while (1)
+	{
+		EVP_PKEY* key = newEVP_PKEY();
+
+		uint8_t* signature = signFile(key, hashResult);
 
 		//memset(hashResult, '\0', SHA256_DIGEST_LENGTH);
 
 		//hashData(&personne, hashResult);
-		//uint8_t* hashStruct = hash2Hex(hashResult);		// TODO : hashe le pointeur mais pas le contenu. Faire une fonction par type.
+		//uint8_t* hashStruct = hash2Hex(hexHash, hashResult);		// TODO : hashe le pointeur mais pas le contenu. Faire une fonction par type.
 
 
 		//printf("hash struct : %s\n", hashStruct);
 
-	free(path);
-	EVP_PKEY_free(key);
+		EVP_PKEY_free(key);
+
+		free(signature);
+
+	}
+
+	
 
 	//==================
 	const uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
