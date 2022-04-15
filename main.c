@@ -48,45 +48,43 @@ int main(void)
 	hashFile(hashResult, path);
 
 	free(path);
-	// no leak
 
+
+	uint8_t* signature = signFile(key, hashResult);
+
+	//memset(hashResult, '\0', SHA256_DIGEST_LENGTH);
+
+	//hashData(&personne, hashResult);
+	//uint8_t* hashStruct = hash2Hex(hexHash, hashResult);		// TODO : hashe le pointeur mais pas le contenu. Faire une fonction par type.
+
+
+	//printf("hash struct : %s\n", hashStruct);
+
+	EVP_PKEY_free(key);
+
+	free(signature);
+
+	// no leak
+	//==================
 	while (1)
 	{
-		EVP_PKEY* key = newEVP_PKEY();
+		const uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
 
-		uint8_t* signature = signFile(key, hashResult);
+		EVP_PKEY* keyfromfile = EVP_PKEY_new();
 
-		//memset(hashResult, '\0', SHA256_DIGEST_LENGTH);
+		loadKeyFromPEMFile(&keyfromfile, pathKey);
 
-		//hashData(&personne, hashResult);
-		//uint8_t* hashStruct = hash2Hex(hexHash, hashResult);		// TODO : hashe le pointeur mais pas le contenu. Faire une fonction par type.
+		BIO* bio = NULL;
+		bio = BIO_new_fp(stdout, BIO_NOCLOSE);
 
+		printf("\n\n");
+		//EVP_PKEY_print_private(bio, keyfromfile, 1, NULL);
 
-		//printf("hash struct : %s\n", hashStruct);
-
-		EVP_PKEY_free(key);
-
-		free(signature);
-
+		EVP_PKEY_free(keyfromfile);
+		BIO_free(bio);
+		free(pathKey);
 	}
 
-	
-
-	//==================
-	const uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
-
-	EVP_PKEY* keyfromfile = EVP_PKEY_new();
-
-	loadKeyFromPEMFile(&keyfromfile, pathKey);
-
-	BIO* bio = NULL;
-	bio = BIO_new_fp(stdout, BIO_NOCLOSE);
-
-	printf("\n\n");
-	//EVP_PKEY_print_private(bio, keyfromfile, 1, NULL);
-
-	EVP_PKEY_free(keyfromfile);
-	BIO_free(bio);
 
 	return EXIT_SUCCESS;
 }
