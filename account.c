@@ -39,7 +39,11 @@ void writeKeysPEM(EVP_PKEY* key, const uint8_t* path)
 	free(pkeyPath);
 }
 
-// create a EVP_PKEY structure from private key
+// 
+/*
+* Fills an empty EVP_PKEY structure with skey and pkey
+* EVP_PKEY* emptyEVP = EVP_PKEY_new();
+*/
 
 int loadKeyFromPEMFile(EVP_PKEY** key, const uint8_t* filePath)
 {
@@ -58,8 +62,29 @@ int loadKeyFromPEMFile(EVP_PKEY** key, const uint8_t* filePath)
 
 	PEM_read_PrivateKey(fp, key, NULL, NULL);
 	fclose(fp);
-	PEM_write_PrivateKey(stdout, *key, NULL, NULL, 0, NULL, NULL);
+	
+	print_PEM_key(*key, PKEY);
+	puts("\n");
+	print_PEM_key(*key, SKEY);
+	puts("\n");
 
+	
 
 	return 0;
+}
+
+/* Prints public or private key to stdout. */
+void print_PEM_key(EVP_PKEY* key, KEY_TYPE KT)
+{
+	switch (KT)
+	{
+	case PKEY:
+		PEM_write_PUBKEY(stdout, key);
+		break;
+	case SKEY:
+		PEM_write_PrivateKey(stdout, key, NULL, NULL, 0, NULL, NULL);
+		break;
+	default:
+		break;
+	}
 }
