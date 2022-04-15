@@ -73,6 +73,7 @@ int signFile2(uint8_t signature[SHA256_DIGEST_LENGTH],	EVP_PKEY* skey, const uin
 	return 0;
 }
 
+
 uint8_t* signFile(EVP_PKEY* skey, const uint8_t* md)
 {
 	FILE* fp;
@@ -97,16 +98,19 @@ uint8_t* signFile(EVP_PKEY* skey, const uint8_t* md)
 	if (EVP_PKEY_sign_init(ctx) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		EVP_PKEY_CTX_free(ctx);
 		return NULL;
 		}
 	if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		EVP_PKEY_CTX_free(ctx);
 		return NULL;
 			}
 	if (EVP_PKEY_CTX_set_signature_md(ctx, EVP_sha256()) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		EVP_PKEY_CTX_free(ctx);
 		return NULL;
 	}
 
@@ -116,6 +120,7 @@ uint8_t* signFile(EVP_PKEY* skey, const uint8_t* md)
 	if (EVP_PKEY_sign(ctx, NULL, &siglen, md, mdlen) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		EVP_PKEY_CTX_free(ctx);
 		return NULL;
 	}
 
@@ -132,14 +137,16 @@ uint8_t* signFile(EVP_PKEY* skey, const uint8_t* md)
 	if (EVP_PKEY_sign(ctx, signature, &siglen, md, mdlen) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		EVP_PKEY_CTX_free(ctx);
 		return NULL;
 	}
 
-	printf("Signature is: ");
-	int i;
-	for (i = 0; i < siglen; i++)
-		printf("%02x", signature[i]);
-	printf("\n");
+	//printf("Signature is: ");
+	//int i;
+	//for (i = 0; i < siglen; i++)
+	//	printf("%02x", signature[i]);
+	//printf("\n");
 
+	EVP_PKEY_CTX_free(ctx);
 	return signature;
 }
