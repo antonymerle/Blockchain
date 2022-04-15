@@ -49,6 +49,7 @@ int main(void)
 
 	free(path);
 
+	/* =================================================== */
 
 	uint8_t* signature = signFile(key, hashResult);
 
@@ -64,27 +65,24 @@ int main(void)
 
 	free(signature);
 
+	/* =================================================== */
+
+	const uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
+
+	EVP_PKEY* keyfromfile = EVP_PKEY_new();
+
+	loadKeyFromPEMFile(&keyfromfile, pathKey);
+
+	BIO* bio = NULL;
+	bio = BIO_new_fp(stdout, BIO_NOCLOSE);
+
+	printf("\n\n");
+
+	EVP_PKEY_free(keyfromfile);
+	BIO_free(bio);
+	free(pathKey);
+
+
 	// no leak
-	//==================
-	while (1)
-	{
-		const uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
-
-		EVP_PKEY* keyfromfile = EVP_PKEY_new();
-
-		loadKeyFromPEMFile(&keyfromfile, pathKey);
-
-		BIO* bio = NULL;
-		bio = BIO_new_fp(stdout, BIO_NOCLOSE);
-
-		printf("\n\n");
-		//EVP_PKEY_print_private(bio, keyfromfile, 1, NULL);
-
-		EVP_PKEY_free(keyfromfile);
-		BIO_free(bio);
-		free(pathKey);
-	}
-
-
 	return EXIT_SUCCESS;
 }
