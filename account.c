@@ -57,7 +57,9 @@ int loadKeyFromPEMFile(EVP_PKEY** key, const uint8_t* filePath)
 	}
 
 	PEM_read_PrivateKey(fp, key, NULL, NULL);
+	fclose(fp);
 	PEM_write_PrivateKey(stdout, *key, NULL, NULL, 0, NULL, NULL);
+
 
 	return 0;
 }
