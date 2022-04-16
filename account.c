@@ -1,5 +1,6 @@
 #include "account.h"
 
+// TODO : change name to more explicit : createAccount or something
 EVP_PKEY* newEVP_PKEY(void)
 {
 	RSA* rsa;
