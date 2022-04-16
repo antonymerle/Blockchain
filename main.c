@@ -5,11 +5,13 @@
 #include "digest.h"
 #include "sign.h"
 
+#define TEST_SIGNATURE 1
+
 
 int main(void)
 {
 	printf("Hello blockchain !\n");
-
+#if 0
 	while (0)
 	{
 		EVP_PKEY* key = newEVP_PKEY();
@@ -20,6 +22,7 @@ int main(void)
 	}
 
 	EVP_PKEY* key = newEVP_PKEY();
+
 
 	const uint8_t* path = concat(DEBUG_PATH, "1646733517396.webm");
 
@@ -51,7 +54,9 @@ int main(void)
 
 	/* =================================================== */
 
-	uint8_t* signature = signMsg(key, hashResult);
+	uint8_t* signature = signMsg2(key, hashResult);
+
+	// TODO : implement verification fonction. fn verifier(message, signature, pk) -> bool
 
 	//memset(hashResult, '\0', SHA256_DIGEST_LENGTH);
 
@@ -65,8 +70,10 @@ int main(void)
 
 	free(signature);
 
+#endif
 	/* =================================================== */
 
+#if 0
 	const uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
 
 	EVP_PKEY* keyfromfile = EVP_PKEY_new();
@@ -81,10 +88,76 @@ int main(void)
 	print_PEM_key(keyfromfile, SKEY);
 	puts("\n");
 
+
+	
+
 	EVP_PKEY_free(keyfromfile);
 	BIO_free(bio);
 	free(pathKey);
-
+#endif
 	// no leak
+
+#if TEST_SIGNATURE
+
+	while (1)
+	{
+		//const uint8_t* path = concat(DEBUG_PATH, "1646733517396.webm");
+
+
+		uint8_t hashResult[SHA256_DIGEST_LENGTH] = { 0 };
+		uint8_t hexHash[HEX_SHA256_NULLT_LEN] = { 0 };
+
+		//hashFile(hashResult, path);
+		hashStr(hashResult, "Hello world !");
+
+		hash2Hex(hexHash, hashResult);
+
+		printf("hash string : ");
+		printf("%s\n", hexHash);
+
+		const uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
+
+		EVP_PKEY* keyfromfile = EVP_PKEY_new();
+
+		loadKeyFromPEMFile(&keyfromfile, pathKey);
+
+		BIO* bio = NULL;
+		bio = BIO_new_fp(stdout, BIO_NOCLOSE);
+
+		print_PEM_key(keyfromfile, PKEY);
+		puts("\n");
+		print_PEM_key(keyfromfile, SKEY);
+		puts("\n");
+
+		size_t slen = 0;
+		uint8_t* signature = signMsg2(keyfromfile, "Hello world !");
+
+		printf("\nmain.c Signature is: ");
+		int i;
+		for (i = 0; i < 256; i++)
+			printf("%.2X ", signature[i]);
+		printf("\n");
+
+		bool legit = false;
+		//memset(hashResult, 0, SHA256_DIGEST_LENGTH);
+
+		legit = verifyStrMsg(keyfromfile, signature, "Hello world !");
+		
+		legit ? printf("La signature est valide\n") : printf("La signature est invalide\n");
+
+		EVP_PKEY_free(keyfromfile);
+		BIO_free(bio);
+
+		free(pathKey);
+		//free(path);
+		free(signature);
+		break;
+
+		// no leak
+	}
+	
+
+#endif
+
 	return EXIT_SUCCESS;
 }
