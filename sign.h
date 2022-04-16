@@ -2,5 +2,5 @@
 
 #include "common.h"
 
-int signFile2(uint8_t signature[MAX_SIG_LENGTH], EVP_PKEY* skey, const uint8_t* filePath);
-uint8_t* signFile(EVP_PKEY* skey, const uint8_t* md);
+int signFile2(uint8_t signature[MAX_SIG_LENGTH], EVP_PKEY* skey, const uint8_t* filePath);				// deprecated
+uint8_t* signMsg(EVP_PKEY* skey, const uint8_t* msg);

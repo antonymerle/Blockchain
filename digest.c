@@ -68,7 +68,7 @@ int hashFile(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* filePath)			// 256 bi
 * Writes SHA256 hash of the file into the empty message digest passed as argument.
 * The hash produced is a binary representation (32*8 bytes)
 */
-int hashData(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* data)			// 256 bits, 32 bytes
+int hashStr(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* str)			// 256 bits, 32 bytes
 {
 	SHA256_CTX ctx;
 
@@ -80,7 +80,7 @@ int hashData(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* data)			// 256 bits, 
 		return 1;
 	}
 
-	if (SHA256_Update(&ctx, data, strlen(data)) == 0)
+	if (SHA256_Update(&ctx, str, strlen(str)) == 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
 		return -1;

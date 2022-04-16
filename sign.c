@@ -74,9 +74,8 @@ int signFile2(uint8_t signature[SHA256_DIGEST_LENGTH],	EVP_PKEY* skey, const uin
 }
 
 
-uint8_t* signFile(EVP_PKEY* skey, const uint8_t* md)
+uint8_t* signMsg(EVP_PKEY* skey, const uint8_t* msg)
 {
-	FILE* fp;
 	uint8_t* signature;
 
 	EVP_PKEY_CTX* ctx;
@@ -117,7 +116,7 @@ uint8_t* signFile(EVP_PKEY* skey, const uint8_t* md)
 	// TODO : est-ce qu'on est pas toujours sur 256 bytes ?
 	// TODO : dans ce cas là, pas besoin d'allouer de la mémoire dynamiquement
 	/* Determine buffer length */
-	if (EVP_PKEY_sign(ctx, NULL, &siglen, md, mdlen) <= 0)
+	if (EVP_PKEY_sign(ctx, NULL, &siglen, msg, mdlen) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
 		EVP_PKEY_CTX_free(ctx);
@@ -135,7 +134,7 @@ uint8_t* signFile(EVP_PKEY* skey, const uint8_t* md)
 
 	memset(signature, '\0', siglen);
 
-	if (EVP_PKEY_sign(ctx, signature, &siglen, md, mdlen) <= 0)
+	if (EVP_PKEY_sign(ctx, signature, &siglen, msg, mdlen) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
 		EVP_PKEY_CTX_free(ctx);

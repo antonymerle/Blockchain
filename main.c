@@ -36,7 +36,7 @@ int main(void)
 	printf("%s\n", hexHash);
 
 
-	hashData(hashResult, "Hello world !");
+	hashStr(hashResult, "Hello world !");
 	hash2Hex(hexHash, hashResult);
 	printf("hash string : %s\n", hexHash);
 
@@ -51,7 +51,7 @@ int main(void)
 
 	/* =================================================== */
 
-	uint8_t* signature = signFile(key, hashResult);
+	uint8_t* signature = signMsg(key, hashResult);
 
 	//memset(hashResult, '\0', SHA256_DIGEST_LENGTH);
 
