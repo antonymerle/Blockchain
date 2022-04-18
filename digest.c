@@ -120,18 +120,37 @@ int hash2Hex(uint8_t hexmd[HEX_HASH_NT], uint8_t binmd[SHA256_DIGEST_LENGTH])
 * Since it is an hexadecimal representation, 4 bits are enough to encode each character (instead of 8, like for ASCII),
 * so 256 bits can be layed on 64 hex characters.
 */
-int bin2Hex(uint8_t hexmd[], IO_BUFFER_SZ SZ, uint8_t binmd[SHA256_DIGEST_LENGTH])
+int bin2Hex(uint8_t hexmd[], IO_BUFFER_SZ OUT_SZ, uint8_t binmd[], IO_BUFFER_SZ IN_SZ)
 {
 	size_t i;
 
-	if (!hexmd || !binmd || SZ)
+	if (!hexmd || !binmd || !OUT_SZ || !IN_SZ)
 		return 1;
 
+	memset(hexmd, '\0', OUT_SZ);
 
-	memset(hexmd, '\0', SZ);
-
-	for (i = 0; i < SHA256_DIGEST_LENGTH; i++)
-		sprintf(&hexmd[i * 2], "%02x", binmd[i]);
+	for (i = 0; i < IN_SZ; i++)
+		sprintf(&hexmd[i * 2], "%.2X", binmd[i]);
 
 	return 0;
+}
+
+void hexPrettyPrint(uint8_t hexsig[])
+{
+	size_t i;
+	uint8_t* p;
+
+	if (!hexsig)
+		return;
+
+	i = 0;
+	p = hexsig;
+
+	while (*p)
+	{
+		putchar(*p++);
+		putchar(*p++);
+		i++;
+		i % 16 ? putchar(' ') : putchar('\n');
+	}
 }
