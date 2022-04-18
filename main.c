@@ -164,7 +164,7 @@ int main(void)
 
 while (1)
 {
-	const uint8_t* filePath = concat(DEBUG_PATH, "1646733517396.webm");
+	uint8_t* filePath = concat(DEBUG_PATH, "1646733517396.webm");
 
 	uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
 
@@ -205,7 +205,7 @@ while (1)
 
 	legit = false;
 
-	const uint8_t* filePath2 = concat(DEBUG_PATH, "test.py");
+	uint8_t* filePath2 = concat(DEBUG_PATH, "test.py");
 
 	legit = verifyFileSignature(keyfromfile, signature, filePath2);
 
