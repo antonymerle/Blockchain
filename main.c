@@ -5,7 +5,8 @@
 #include "digest.h"
 #include "sign.h"
 
-#define TEST_SIGNATURE 1
+#define TEST_SIGNATURE_MSG 0
+#define TEST_SIGNATURE_FILE 1
 
 
 int main(void)
@@ -28,7 +29,7 @@ int main(void)
 
 
 	uint8_t hashResult[SHA256_DIGEST_LENGTH] = { 0 };
-	uint8_t hexHash[HEX_SHA256_NULLT_LEN] = { 0 };
+	uint8_t hexHash[HEX_HASH_NT_LEN] = { 0 };
 	//uint8_t signature[SHA256_DIGEST_LENGTH] = { 0 };
 
 	hashFile(hashResult, path);
@@ -97,7 +98,7 @@ int main(void)
 #endif
 	// no leak
 
-#if TEST_SIGNATURE
+#if TEST_SIGNATURE_MSG
 
 	while (1)
 	{
@@ -105,7 +106,7 @@ int main(void)
 
 
 		uint8_t hashResult[SHA256_DIGEST_LENGTH] = { 0 };
-		uint8_t hexHash[HEX_SHA256_NULLT_LEN] = { 0 };
+		uint8_t hexHash[HEX_HASH_NT_LEN] = { 0 };
 
 		//hashFile(hashResult, path);
 		hashStr(hashResult, "Hello world !");
@@ -156,6 +157,71 @@ int main(void)
 		// no leak
 	}
 	
+
+#endif
+
+#if TEST_SIGNATURE_FILE
+
+while (1)
+{
+	const uint8_t* filePath = concat(DEBUG_PATH, "1646733517396.webm");
+
+
+	/*uint8_t hashResult[SHA256_DIGEST_LENGTH] = { 0 };
+	uint8_t hexHash[HEX_HASH_NT_LEN] = { 0 };*/
+
+	//hashFile(hashResult, path);
+	//hashStr(hashResult, "Hello world !");
+
+	//hash2Hex(hexHash, hashResult);
+
+	//printf("hash string : ");
+	//printf("%s\n", hexHash);
+
+	const uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
+
+	EVP_PKEY* keyfromfile = EVP_PKEY_new();
+
+	loadKeyFromPEMFile(&keyfromfile, pathKey);
+
+	BIO* bio = NULL;
+	bio = BIO_new_fp(stdout, BIO_NOCLOSE);
+
+	print_PEM_key(keyfromfile, PKEY);
+	puts("\n");
+	print_PEM_key(keyfromfile, SKEY);
+	puts("\n");
+
+	size_t slen = 0;
+	uint8_t* signature = signFile(keyfromfile, filePath);
+
+	uint8_t hexBuffer[SIG_HEX_NT] = {0};
+	bin2Hex(hexBuffer, SIG_HEX_NT, signature);
+
+	printf("\nmain.c Signature is: ");
+
+	printf(hexBuffer);
+	//int i;
+	//for (i = 0; i < 256; i++)
+	//	printf("%.2X ", signature[i]);
+	//printf("\n");
+
+	//bool legit = false;
+
+	//legit = verifyStrMsg(keyfromfile, signature, "Hello world !");
+
+	//legit ? printf("La signature est valide\n") : printf("La signature est invalide\n");
+
+	EVP_PKEY_free(keyfromfile);
+	BIO_free(bio);
+
+	free(pathKey);
+	//free(path);
+	free(signature);
+	break;
+
+	// no leak
+}
 
 #endif
 
