@@ -130,12 +130,8 @@ int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* skey, const uint8_t* filePath)
 {
 	FILE* fp;
 	uint8_t* buffer;
-	//uint8_t* signature;
-
 	EVP_MD_CTX* ctx;
-
-	size_t siglen = 0;		// siglen est calculé par openSSL
-	//size_t msglen = strlen(msg);
+	size_t siglen = SIG_BIN;		// siglen est calculé par openSSL
 
 	fp = fopen(filePath, "rb");
 
@@ -198,16 +194,6 @@ int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* skey, const uint8_t* filePath)
 
 	// TODO assert(siglen == SIG_BIN)
 
-	// we have the signature lenght, so we can allocate memory
-	//signature = malloc(siglen);
-
-
-	//if (signature == NULL)
-	//{
-	//	fprintf(stderr, "%s", "Impossible d'allouer la mémoire.\n");
-	//	exit(1);
-	//}
-
 	memset(signBin, '\0', siglen);
 
 	if (EVP_DigestSignFinal(ctx, signBin, &siglen) == 0)
@@ -217,11 +203,11 @@ int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* skey, const uint8_t* filePath)
 		return NULL;
 	}
 
-	printf("Signature is: ");
-	int i;
-	for (i = 0; i < siglen; i++)
-		printf("%.2X ", signBin[i]);
-	printf("\n");
+	//printf("Signature is: ");
+	//int i;
+	//for (i = 0; i < siglen; i++)
+	//	printf("%.2X ", signBin[i]);
+	//printf("\n");
 
 	EVP_MD_CTX_free(ctx);
 	return 0;
