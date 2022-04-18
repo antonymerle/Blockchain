@@ -117,7 +117,7 @@ int bin2Hex(uint8_t hexmd[], IO_BUFFER_SZ OUT_SZ, uint8_t binmd[], IO_BUFFER_SZ 
 	return 0;
 }
 
-void hexPrettyPrint(uint8_t hexsig[])
+void hexPrettyPrint(const uint8_t hexsig[])
 {
 	size_t i;
 	uint8_t* p;
