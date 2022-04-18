@@ -96,24 +96,6 @@ int hashStr(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* str)			// 256 bits, 32
 }
 
 
-
-/*
-* Writes in hexmd buffer an hexadecimal representation of a SHA256 hash that can be displayed as a string.
-* Since it is an hexadecimal representation, 4 bits are enough to encode each character (instead of 8, like for ASCII),
-* so 256 bits can be layed on 64 hex characters.
-*/
-int hash2Hex(uint8_t hexmd[HEX_HASH_NT], uint8_t binmd[SHA256_DIGEST_LENGTH])
-{
-	size_t i;
-
-	memset(hexmd, '\0', HEX_HASH_NT);
-
-	for (i = 0; i < SHA256_DIGEST_LENGTH; i++)
-		sprintf(&hexmd[i * 2], "%02x", binmd[i]);
-
-	return 0;
-}
-
 /*
 * Writes in hexmd buffer an hexadecimal representation of a SHA256 binary hash/signature, in order to display it as a string.
 * The caller must allocate an array of IO_BUFFER_SZ lenght on the stack to serve as a destination buffer (hexmd).
