@@ -70,11 +70,11 @@ int writeKeysPEM(EVP_PKEY* const key, const uint8_t* path)
 * EVP_PKEY* emptyEVP = EVP_PKEY_new();
 */
 
-int loadKeyFromPEMFile(EVP_PKEY** key, const uint8_t* filePath)
+int loadKeyFromPEMFile(EVP_PKEY** const key, uint8_t* const filePath)
 {
 	FILE* fp;
 	
-	if (filePath == NULL)
+	if (!key || !filePath)
 		return 1;
 
 	fp = fopen(filePath, "r");
@@ -93,7 +93,7 @@ int loadKeyFromPEMFile(EVP_PKEY** key, const uint8_t* filePath)
 }
 
 /* Prints public or private key to stdout. */
-void print_PEM_key(EVP_PKEY* key, KEY_TYPE KT)
+void print_PEM_key(EVP_PKEY* const key, KEY_TYPE KT)
 {
 	switch (KT)
 	{
@@ -108,7 +108,7 @@ void print_PEM_key(EVP_PKEY* key, KEY_TYPE KT)
 	}
 }
 
-void print_PEM_keys(EVP_PKEY* key)
+void print_PEM_keys(EVP_PKEY* const key)
 {
 	PEM_write_PUBKEY(stdout, key);
 	puts("\n");
