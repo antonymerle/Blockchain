@@ -131,7 +131,7 @@ int main(void)
 		puts("\n");
 
 		size_t slen = 0;
-		uint8_t* signature = signMsg2(keyfromfile, "Hello world !");
+		uint8_t* signature = signMsg(keyfromfile, "Hello world !");
 
 		printf("\nmain.c Signature is: ");
 		int i;
@@ -193,7 +193,8 @@ while (1)
 	puts("\n");
 
 	size_t slen = 0;
-	uint8_t* signature = signFile(keyfromfile, filePath);
+	//uint8_t* signature = signFile(keyfromfile, filePath);
+	uint8_t* signature = signMsg(keyfromfile, "Hello world !");
 
 	uint8_t hexBuffer[SIG_HEX_NT] = {0};
 	bin2Hex(hexBuffer, SIG_HEX_NT, signature);
