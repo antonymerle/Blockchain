@@ -82,3 +82,11 @@ void print_PEM_key(EVP_PKEY* key, KEY_TYPE KT)
 		break;
 	}
 }
+
+void print_PEM_keys(EVP_PKEY* key)
+{
+	PEM_write_PUBKEY(stdout, key);
+	puts("\n");
+	PEM_write_PrivateKey(stdout, key, NULL, NULL, 0, NULL, NULL);
+	puts("\n");
+}
