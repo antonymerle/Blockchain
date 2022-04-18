@@ -115,6 +115,101 @@ bool verifyStrMsg(EVP_PKEY* pubkey, uint8_t* signature, uint8_t* msg)
 }
 
 
+bool verifyFileSignature(EVP_PKEY* pubkey, uint8_t* signature, uint8_t* filePath)
+{
+	FILE* fp;
+	EVP_MD_CTX* ctx;
+	uint8_t* buffer;
+	bool validity;
+	int validityStatus;
+	//size_t mlen = strlen(msg);
+	size_t totalRead;
+	size_t mdLen = SIG_BIN;
+
+	ctx = EVP_MD_CTX_new();
+	validity = false;
+	validityStatus = 0;
+
+	printf("\nverifyStrMsg.c Signature is: ");
+	int i;
+	for (i = 0; i < 256; i++)
+		printf("%.2X ", signature[i]);
+	printf("\n");
+
+	buffer = malloc(READ_FILE_BUFFER_16K0);
+
+	if (filePath == NULL)
+		return 1;
+
+	fp = fopen(filePath, "rb");
+
+	if (fp == NULL)
+	{
+		fprintf(stderr, "%s : %s\n", "Impossible d'ouvrir le chemin", filePath);
+		return 1;
+	}
+
+	if (buffer == NULL)
+	{
+		fprintf(stderr, "%s", "Impossible d'allouer la mémoire.\n");
+		exit(1);
+	}
+
+	memset(buffer, 0, READ_FILE_BUFFER_16K0);
+
+
+	if (EVP_DigestVerifyInit(ctx, NULL, EVP_sha256(), NULL, pubkey) == 0)
+	{
+		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		EVP_MD_CTX_free(ctx);
+		return false;
+	}
+
+	while (feof(fp) == 0)
+	{
+		size_t totalRead = fread(buffer, 1, READ_FILE_BUFFER_16K0, fp);
+
+		if (EVP_DigestVerifyUpdate(ctx, buffer, totalRead) == 0)
+		{
+			fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+			free(buffer);
+			return -1;
+		}
+	}
+
+	free(buffer);
+	fclose(fp);
+
+	//if (EVP_DigestVerifyUpdate(ctx, msg, mlen) == 0)		// TODO replace 1024 by msgLen;
+	//{
+	//	fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+	//	EVP_MD_CTX_free(ctx);
+	//	return false;
+	//}
+
+	validityStatus = EVP_DigestVerifyFinal(ctx, signature, mdLen);			//
+
+	switch (validityStatus)
+	{
+	case 1:
+		validity = true;
+		break;
+	case 0:
+		validity = false;
+		break;
+	default:
+		validity = false;
+		printf("Error validating signature\n");
+		break;
+	}
+
+	EVP_MD_CTX_free(ctx);
+
+	return validity;
+}
+
+
+
 
 int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* skey, const uint8_t* filePath)
 {

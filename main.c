@@ -166,18 +166,6 @@ while (1)
 {
 	const uint8_t* filePath = concat(DEBUG_PATH, "1646733517396.webm");
 
-
-	/*uint8_t hashResult[SHA256_DIGEST_LENGTH] = { 0 };
-	uint8_t hexHash[HEX_HASH_NT_LEN] = { 0 };*/
-
-	//hashFile(hashResult, path);
-	//hashStr(hashResult, "Hello world !");
-
-	//hash2Hex(hexHash, hashResult);
-
-	//printf("hash string : ");
-	//printf("%s\n", hexHash);
-
 	uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
 
 	EVP_PKEY* keyfromfile = EVP_PKEY_new();
@@ -186,6 +174,8 @@ while (1)
 
 	BIO* bio = NULL;
 	bio = BIO_new_fp(stdout, BIO_NOCLOSE);
+
+	// TODO : fn printKeys
 
 	print_PEM_key(keyfromfile, PKEY);
 	puts("\n");
@@ -199,9 +189,6 @@ while (1)
 	uint8_t hexBuffer[SIG_HEX_NT] = {0};
 	bin2Hex(hexBuffer, SIG_HEX_NT, signature, SIG_BIN);
 
-	//printf("\nmain.c Signature is: ");
-
-	//printf(hexBuffer);
 	hexPrettyPrint(hexBuffer);
 
 	bool legit = false;
@@ -209,7 +196,6 @@ while (1)
 	legit = verifyStrMsg(keyfromfile, signature, "Hello world !");
 
 	legit ? printf("La signature est valide\n") : printf("La signature est invalide\n");
-
 
 	printf("\nsign file\n");
 
@@ -220,16 +206,21 @@ while (1)
 	bin2Hex(hexBuffer, SIG_HEX_NT, signature, SIG_BIN);
 	hexPrettyPrint(hexBuffer);
 
+	legit = false;
 
+	const uint8_t* filePath2 = concat(DEBUG_PATH, "test.py");
 
+	legit = verifyFileSignature(keyfromfile, signature, filePath2);
 
+	legit ? printf("La signature est valide\n") : printf("La signature est invalide\n");
 
 	EVP_PKEY_free(keyfromfile);
 	BIO_free(bio);
 
 	free(pathKey);
-	//free(path);
-	break;
+	free(filePath);
+	free(filePath2);
+
 
 	// no leak
 }
