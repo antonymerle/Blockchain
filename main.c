@@ -207,18 +207,17 @@ while (1)
 
 	uint8_t* filePath2 = concat(DEBUG_PATH, "test.py");
 
-	legit = verifyFileSignature(keyfromfile, signature, filePath2);
+	legit = verifyFileSignature(keyfromfile, signature, filePath);
 
 	legit ? printf("La signature est valide\n") : printf("La signature est invalide\n");
 
 	EVP_PKEY_free(keyfromfile);
-	//BIO_free(bio);
 
 	free(pathKey);
 	free(filePath);
 	free(filePath2);
 
-
+	break;
 	// no leak
 }
 
