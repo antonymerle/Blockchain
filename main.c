@@ -172,17 +172,14 @@ while (1)
 
 	loadKeyFromPEMFile(&keyfromfile, pathKey);
 
-	BIO* bio = NULL;
-	bio = BIO_new_fp(stdout, BIO_NOCLOSE);
+	//BIO* bio = NULL;
+	//bio = BIO_new_fp(stdout, BIO_NOCLOSE);
 
 	// TODO : fn printKeys
 
-	print_PEM_key(keyfromfile, PKEY);
-	puts("\n");
-	print_PEM_key(keyfromfile, SKEY);
-	puts("\n");
+	print_PEM_keys(keyfromfile);
 
-	size_t slen = 0;
+	//size_t slen = 0;
 	uint8_t signature[SIG_BIN] = {0};
 	signMsg(signature, keyfromfile, "Hello world !");
 
@@ -200,7 +197,7 @@ while (1)
 	printf("\nsign file\n");
 
 	memset(signature, 0, SIG_BIN);
-	memset(hexBuffer, 0, SIG_BIN);
+	memset(hexBuffer, 0, SIG_HEX_NT);
 
 	signFile(signature, keyfromfile, filePath);
 	bin2Hex(hexBuffer, SIG_HEX_NT, signature, SIG_BIN);
@@ -215,7 +212,7 @@ while (1)
 	legit ? printf("La signature est valide\n") : printf("La signature est invalide\n");
 
 	EVP_PKEY_free(keyfromfile);
-	BIO_free(bio);
+	//BIO_free(bio);
 
 	free(pathKey);
 	free(filePath);
