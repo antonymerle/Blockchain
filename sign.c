@@ -1,7 +1,7 @@
 #include "sign.h"
 
 
-int signMsg(uint8_t signBin[SIG_BIN], EVP_PKEY* skey, const uint8_t* msg)
+int signMsg(uint8_t signBin[SIG_BIN], EVP_PKEY* const skey, uint8_t* const msg)
 {
 	EVP_MD_CTX* ctx;
 	size_t siglen = SIG_BIN;			// siglen est ensuite calculée/confirmée par openSSL (SHA256 -> taille fixe)
@@ -61,7 +61,7 @@ int signMsg(uint8_t signBin[SIG_BIN], EVP_PKEY* skey, const uint8_t* msg)
 	return 0;
 }
 
-bool verifyStrMsg(EVP_PKEY* pubkey, uint8_t* signature, uint8_t* msg)
+bool verifyStrMsg(EVP_PKEY* const pubkey, uint8_t* const signature, uint8_t* const msg)
 {
 	EVP_MD_CTX* ctx;
 	bool validity;
@@ -115,7 +115,7 @@ bool verifyStrMsg(EVP_PKEY* pubkey, uint8_t* signature, uint8_t* msg)
 }
 
 
-bool verifyFileSignature(EVP_PKEY* pubkey, uint8_t* signature, uint8_t* filePath)
+bool verifyFileSignature(EVP_PKEY* const pubkey, uint8_t* const signature, uint8_t* const filePath)
 {
 	FILE* fp;
 	EVP_MD_CTX* ctx;
@@ -209,7 +209,7 @@ bool verifyFileSignature(EVP_PKEY* pubkey, uint8_t* signature, uint8_t* filePath
 
 
 
-int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* skey, const uint8_t* filePath)
+int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* const skey, uint8_t* const filePath)
 {
 	FILE* fp;
 	uint8_t* buffer;
@@ -272,7 +272,7 @@ int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* skey, const uint8_t* filePath)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
 		EVP_MD_CTX_free(ctx);
-		return NULL;
+		return 1;
 	}
 
 	// TODO assert(siglen == SIG_BIN)
@@ -283,7 +283,7 @@ int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* skey, const uint8_t* filePath)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
 		EVP_MD_CTX_free(ctx);
-		return NULL;
+		return 1;
 	}
 
 	//printf("Signature is: ");

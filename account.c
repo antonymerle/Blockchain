@@ -21,7 +21,7 @@ EVP_PKEY* newEVP_PKEY(void)
 }
 
 // TODO: ajouter un argument pour crypter la clé privée
-int writeKeysPEM(EVP_PKEY* const key, const uint8_t* path)
+int writeKeysPEM(EVP_PKEY* const key, uint8_t* const path)
 {
 	FILE* fp;
 
