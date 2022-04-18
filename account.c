@@ -20,24 +20,49 @@ EVP_PKEY* newEVP_PKEY(void)
 	return key;
 }
 
-void writeKeysPEM(EVP_PKEY* key, const uint8_t* path)
+// TODO: ajouter un argument pour crypter la clé privée
+int writeKeysPEM(EVP_PKEY* const key, const uint8_t* path)
 {
 	FILE* fp;
 
-	const uint8_t* skeyPath = concat(path, "private.pem");
-	const uint8_t* pkeyPath = concat(path, "public.pem");
+	uint8_t* skeyPath;
+	uint8_t* pkeyPath; 
+
+	if (!key || !path)
+		return 1;
+
+	skeyPath = concat(path, "private.pem");
+	pkeyPath = concat(path, "public.pem");
+
+	if (!skeyPath || !pkeyPath)
+		return 1;
 
 	fp = fopen(skeyPath, "w");
+
+	if (!fp)
+	{
+		fprintf(stderr, "Cannot open %s\n", skeyPath);
+		return 1;
+	}
+
 	PEM_write_PrivateKey(fp, key, NULL, NULL, 0, NULL, NULL);		// EVP_aes_256_cbc() pour crypter, NULL pour écrire la clé en clair
 	fclose(fp);
 
 	fp = fopen(pkeyPath, "w");
+
+	if (!fp)
+	{
+		fprintf(stderr, "Cannot open %s\n", pkeyPath);
+		return 1;
+	}
 
 	PEM_write_PUBKEY(fp, key);
 	fclose(fp);
 
 	free(skeyPath);
 	free(pkeyPath);
+
+	return 0;
 }
 
 /*
