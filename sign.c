@@ -286,3 +286,102 @@ uint8_t* signMsg2(EVP_PKEY* skey, const uint8_t* msg)
 	EVP_MD_CTX_free(ctx);
 	return signature;
 }
+
+uint8_t* signFile(EVP_PKEY* skey, const uint8_t* filePath)
+{
+	FILE* fp;
+	uint8_t* buffer;
+	uint8_t* signature;
+
+	EVP_MD_CTX* ctx;
+
+	size_t siglen = 0;		// siglen est calculé par openSSL
+	//size_t msglen = strlen(msg);
+
+	fp = fopen(filePath, "rb");
+
+	if (fp == NULL)
+	{
+		fprintf(stderr, "Impossible d'ouvrir le fichier.\n");
+		return NULL;
+	}
+
+	buffer = malloc(READ_FILE_BUFFER_16K0);
+
+	if (buffer == NULL)
+	{
+		fprintf(stderr, "Impossible d'allouer la mémoire\n");
+		exit(1);
+	}
+
+	memset(buffer, 0, READ_FILE_BUFFER_16K0);
+
+	ctx = EVP_MD_CTX_new();
+
+	if (!ctx)
+	{
+		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		return NULL;
+	}
+	if (EVP_DigestSignInit(ctx, NULL, EVP_sha256(), NULL, skey) <= 0)
+	{
+		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		EVP_MD_CTX_free(ctx);
+		return NULL;
+	}
+
+	while (feof(fp) == 0)
+	{
+		size_t bytesRead = fread(buffer, 1, READ_FILE_BUFFER_16K0, fp);		// read one byte 1024 * 16 times and chove it in buffer
+
+		if (EVP_DigestSignUpdate(ctx, buffer, bytesRead) == 0)
+		{
+			fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+			EVP_MD_CTX_free(ctx);
+			return NULL;
+		}
+	}
+
+	free(buffer);
+	fclose(fp);
+
+
+	// TODO : est-ce qu'on est pas toujours sur 256 bytes ? 
+	// Check EVP_MAX_MD_SIZE  https://www.openssl.org/docs/man1.1.1/man3/EVP_MD_CTX_pkey_ctx.html
+	// TODO : dans ce cas là, pas besoin d'allouer de la mémoire dynamiquement
+	/* first call to determine buffer length, does not compute signature => fast process */
+	if (EVP_DigestSignFinal(ctx, NULL, &siglen) <= 0)
+	{
+		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		EVP_MD_CTX_free(ctx);
+		return NULL;
+	}
+
+	// we have the signature lenght, so we can allocate memory
+	signature = malloc(siglen);
+
+
+	if (signature == NULL)
+	{
+		fprintf(stderr, "%s", "Impossible d'allouer la mémoire.\n");
+		exit(1);
+	}
+
+	memset(signature, '\0', siglen);
+
+	if (EVP_DigestSignFinal(ctx, signature, &siglen) == 0)
+	{
+		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		EVP_MD_CTX_free(ctx);
+		return NULL;
+	}
+
+	printf("Signature is: ");
+	int i;
+	for (i = 0; i < siglen; i++)
+		printf("%.2X ", signature[i]);
+	printf("\n");
+
+	EVP_MD_CTX_free(ctx);
+	return signature;
+}
