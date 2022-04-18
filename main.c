@@ -193,7 +193,6 @@ while (1)
 	puts("\n");
 
 	size_t slen = 0;
-	//uint8_t* signature = signFile(keyfromfile, filePath);
 	uint8_t signature[SIG_BIN] = {0};
 	signMsg(signature, keyfromfile, "Hello world !");
 
@@ -205,17 +204,25 @@ while (1)
 	//printf(hexBuffer);
 	hexPrettyPrint(hexBuffer);
 
+	bool legit = false;
 
-	//int i;
-	//for (i = 0; i < 256; i++)
-	//	printf("%.2X ", signature[i]);
-	//printf("\n");
+	legit = verifyStrMsg(keyfromfile, signature, "Hello world !");
 
-	//bool legit = false;
+	legit ? printf("La signature est valide\n") : printf("La signature est invalide\n");
 
-	//legit = verifyStrMsg(keyfromfile, signature, "Hello world !");
 
-	//legit ? printf("La signature est valide\n") : printf("La signature est invalide\n");
+	printf("\n sign file\n");
+
+	memset(signature, 0, SIG_BIN);
+	memset(hexBuffer, 0, SIG_BIN);
+
+	signFile(signature, keyfromfile, filePath);
+	bin2Hex(hexBuffer, SIG_HEX_NT, signature, SIG_BIN);
+	hexPrettyPrint(hexBuffer);
+
+
+
+
 
 	EVP_PKEY_free(keyfromfile);
 	BIO_free(bio);

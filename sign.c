@@ -126,11 +126,11 @@ bool verifyStrMsg(EVP_PKEY* pubkey, uint8_t* signature, uint8_t* msg)
 
 
 
-uint8_t* signFile(EVP_PKEY* skey, const uint8_t* filePath)
+int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* skey, const uint8_t* filePath)
 {
 	FILE* fp;
 	uint8_t* buffer;
-	uint8_t* signature;
+	//uint8_t* signature;
 
 	EVP_MD_CTX* ctx;
 
@@ -142,7 +142,7 @@ uint8_t* signFile(EVP_PKEY* skey, const uint8_t* filePath)
 	if (fp == NULL)
 	{
 		fprintf(stderr, "Impossible d'ouvrir le fichier.\n");
-		return NULL;
+		return 1;
 	}
 
 	buffer = malloc(READ_FILE_BUFFER_16K0);
@@ -160,13 +160,13 @@ uint8_t* signFile(EVP_PKEY* skey, const uint8_t* filePath)
 	if (!ctx)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
-		return NULL;
+		return 1;
 	}
 	if (EVP_DigestSignInit(ctx, NULL, EVP_sha256(), NULL, skey) <= 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
 		EVP_MD_CTX_free(ctx);
-		return NULL;
+		return 1;
 	}
 
 	while (feof(fp) == 0)
@@ -177,7 +177,7 @@ uint8_t* signFile(EVP_PKEY* skey, const uint8_t* filePath)
 		{
 			fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
 			EVP_MD_CTX_free(ctx);
-			return NULL;
+			return 1;
 		}
 	}
 
@@ -196,19 +196,21 @@ uint8_t* signFile(EVP_PKEY* skey, const uint8_t* filePath)
 		return NULL;
 	}
 
+	// TODO assert(siglen == SIG_BIN)
+
 	// we have the signature lenght, so we can allocate memory
-	signature = malloc(siglen);
+	//signature = malloc(siglen);
 
 
-	if (signature == NULL)
-	{
-		fprintf(stderr, "%s", "Impossible d'allouer la mémoire.\n");
-		exit(1);
-	}
+	//if (signature == NULL)
+	//{
+	//	fprintf(stderr, "%s", "Impossible d'allouer la mémoire.\n");
+	//	exit(1);
+	//}
 
-	memset(signature, '\0', siglen);
+	memset(signBin, '\0', siglen);
 
-	if (EVP_DigestSignFinal(ctx, signature, &siglen) == 0)
+	if (EVP_DigestSignFinal(ctx, signBin, &siglen) == 0)
 	{
 		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
 		EVP_MD_CTX_free(ctx);
@@ -218,9 +220,9 @@ uint8_t* signFile(EVP_PKEY* skey, const uint8_t* filePath)
 	printf("Signature is: ");
 	int i;
 	for (i = 0; i < siglen; i++)
-		printf("%.2X ", signature[i]);
+		printf("%.2X ", signBin[i]);
 	printf("\n");
 
 	EVP_MD_CTX_free(ctx);
-	return signature;
+	return 0;
 }
