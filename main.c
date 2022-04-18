@@ -178,7 +178,7 @@ while (1)
 	//printf("hash string : ");
 	//printf("%s\n", hexHash);
 
-	const uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
+	uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
 
 	EVP_PKEY* keyfromfile = EVP_PKEY_new();
 
@@ -194,14 +194,18 @@ while (1)
 
 	size_t slen = 0;
 	//uint8_t* signature = signFile(keyfromfile, filePath);
-	uint8_t* signature = signMsg(keyfromfile, "Hello world !");
+	uint8_t signature[SIG_BIN] = {0};
+	signMsg(signature, keyfromfile, "Hello world !");
 
 	uint8_t hexBuffer[SIG_HEX_NT] = {0};
-	bin2Hex(hexBuffer, SIG_HEX_NT, signature);
+	bin2Hex(hexBuffer, SIG_HEX_NT, signature, SIG_BIN);
 
-	printf("\nmain.c Signature is: ");
+	//printf("\nmain.c Signature is: ");
 
-	printf(hexBuffer);
+	//printf(hexBuffer);
+	hexPrettyPrint(hexBuffer);
+
+
 	//int i;
 	//for (i = 0; i < 256; i++)
 	//	printf("%.2X ", signature[i]);
@@ -218,7 +222,6 @@ while (1)
 
 	free(pathKey);
 	//free(path);
-	free(signature);
 	break;
 
 	// no leak
