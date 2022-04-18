@@ -122,9 +122,7 @@ bool verifyFileSignature(EVP_PKEY* pubkey, uint8_t* signature, uint8_t* filePath
 	uint8_t* buffer;
 	bool validity;
 	int validityStatus;
-	//size_t mlen = strlen(msg);
-	size_t totalRead;
-	size_t mdLen = SIG_BIN;
+	size_t sigLen = SIG_BIN;
 
 	ctx = EVP_MD_CTX_new();
 	validity = false;
@@ -187,7 +185,7 @@ bool verifyFileSignature(EVP_PKEY* pubkey, uint8_t* signature, uint8_t* filePath
 	//	return false;
 	//}
 
-	validityStatus = EVP_DigestVerifyFinal(ctx, signature, mdLen);			//
+	validityStatus = EVP_DigestVerifyFinal(ctx, signature, sigLen);			//
 
 	switch (validityStatus)
 	{
