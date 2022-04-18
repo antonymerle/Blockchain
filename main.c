@@ -211,7 +211,7 @@ while (1)
 	legit ? printf("La signature est valide\n") : printf("La signature est invalide\n");
 
 
-	printf("\n sign file\n");
+	printf("\nsign file\n");
 
 	memset(signature, 0, SIG_BIN);
 	memset(hexBuffer, 0, SIG_BIN);

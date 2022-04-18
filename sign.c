@@ -42,16 +42,6 @@ int signMsg(uint8_t signBin[SIG_BIN], EVP_PKEY* skey, const uint8_t* msg)
 		return -1;
 	}
 
-	// we have the signature lenght, so we can allocate memory
-	//signature = malloc(siglen);
-
-
-	//if (signature == NULL)
-	//{
-	//	fprintf(stderr, "%s", "Impossible d'allouer la mémoire.\n");
-	//	exit(1);
-	//}
-
 	memset(signBin, '\0', siglen);
 
 	if (EVP_DigestSignFinal(ctx, signBin, &siglen) == 0)
