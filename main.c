@@ -15,14 +15,14 @@ int main(void)
 #if 0
 	while (0)
 	{
-		EVP_PKEY* key = newEVP_PKEY();
+		EVP_PKEY* key = account_keys_create();
 
-		writeKeysPEM(key, DEBUG_PATH);
+		account_keys_write_PEM_file(key, DEBUG_PATH);
 
 		EVP_PKEY_free(key);
 	}
 
-	EVP_PKEY* key = newEVP_PKEY();
+	EVP_PKEY* key = account_keys_create();
 
 
 	const uint8_t* path = concat(DEBUG_PATH, "1646733517396.webm");
@@ -79,14 +79,14 @@ int main(void)
 
 	EVP_PKEY* keyfromfile = EVP_PKEY_new();
 
-	loadKeyFromPEMFile(&keyfromfile, pathKey);
+	account_keys_load_PEM_file(&keyfromfile, pathKey);
 
 	BIO* bio = NULL;
 	bio = BIO_new_fp(stdout, BIO_NOCLOSE);
 
-	print_PEM_key(keyfromfile, PKEY);
+	account_keys_print_one_PEM(keyfromfile, PKEY);
 	puts("\n");
-	print_PEM_key(keyfromfile, SKEY);
+	account_keys_print_one_PEM(keyfromfile, SKEY);
 	puts("\n");
 
 
@@ -120,14 +120,14 @@ int main(void)
 
 		EVP_PKEY* keyfromfile = EVP_PKEY_new();
 
-		loadKeyFromPEMFile(&keyfromfile, pathKey);
+		account_keys_load_PEM_file(&keyfromfile, pathKey);
 
 		BIO* bio = NULL;
 		bio = BIO_new_fp(stdout, BIO_NOCLOSE);
 
-		print_PEM_key(keyfromfile, PKEY);
+		account_keys_print_one_PEM(keyfromfile, PKEY);
 		puts("\n");
-		print_PEM_key(keyfromfile, SKEY);
+		account_keys_print_one_PEM(keyfromfile, SKEY);
 		puts("\n");
 
 		size_t slen = 0;
@@ -168,16 +168,15 @@ while (1)
 
 	uint8_t* pathKey = concat(DEBUG_PATH, "private.pem");
 
-	EVP_PKEY* keyfromfile = EVP_PKEY_new();
+	EVP_PKEY* keyfromfile = account_keys_create();
 
-	loadKeyFromPEMFile(&keyfromfile, pathKey);
 
 	//BIO* bio = NULL;
 	//bio = BIO_new_fp(stdout, BIO_NOCLOSE);
 
 	// TODO : fn printKeys
 
-	print_PEM_keys(keyfromfile);
+	account_keys_print_pair_PEM(keyfromfile);
 
 	//size_t slen = 0;
 	uint8_t signature[SIG_BIN] = {0};

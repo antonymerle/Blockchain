@@ -1,7 +1,7 @@
 #include "account.h"
 
 // TODO : change name to more explicit : createAccount or something
-EVP_PKEY* newEVP_PKEY(void)
+EVP_PKEY* account_keys_create(void)
 {
 	RSA* rsa;
 	EVP_PKEY* key;
@@ -21,7 +21,7 @@ EVP_PKEY* newEVP_PKEY(void)
 }
 
 // TODO: ajouter un argument pour crypter la clé privée
-int writeKeysPEM(EVP_PKEY* const key, uint8_t* const path)
+int account_keys_write_PEM_file(EVP_PKEY* const key, uint8_t* const path)
 {
 	FILE* fp;
 
@@ -69,8 +69,7 @@ int writeKeysPEM(EVP_PKEY* const key, uint8_t* const path)
 * Fills an empty EVP_PKEY structure with skey and pkey
 * EVP_PKEY* emptyEVP = EVP_PKEY_new();
 */
-
-int loadKeyFromPEMFile(EVP_PKEY** const key, uint8_t* const filePath)
+int account_keys_load_PEM_file(EVP_PKEY** const key, uint8_t* const filePath)
 {
 	FILE* fp;
 	
@@ -93,7 +92,7 @@ int loadKeyFromPEMFile(EVP_PKEY** const key, uint8_t* const filePath)
 }
 
 /* Prints public or private key to stdout. */
-void print_PEM_key(EVP_PKEY* const key, KEY_TYPE KT)
+void account_keys_print_one_PEM(EVP_PKEY* const key, KEY_TYPE KT)
 {
 	switch (KT)
 	{
@@ -108,7 +107,7 @@ void print_PEM_key(EVP_PKEY* const key, KEY_TYPE KT)
 	}
 }
 
-void print_PEM_keys(EVP_PKEY* const key)
+void account_keys_print_pair_PEM(EVP_PKEY* const key)
 {
 	PEM_write_PUBKEY(stdout, key);
 	puts("\n");
