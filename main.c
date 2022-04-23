@@ -132,7 +132,7 @@ int main(void)
 		puts("\n");
 
 		size_t slen = 0;
-		uint8_t* signature = signMsg(keyfromfile, "Hello world !");
+		uint8_t* signature = sign_msg(keyfromfile, "Hello world !");
 
 		printf("\nmain.c Signature is: ");
 		int i;
@@ -143,7 +143,7 @@ int main(void)
 		bool legit = false;
 		//memset(hashResult, 0, SHA256_DIGEST_LENGTH);
 
-		legit = verifyStrMsg(keyfromfile, signature, "Hello world !");
+		legit = sign_verify_str_msg(keyfromfile, signature, "Hello world !");
 		
 		legit ? printf("La signature est valide\n") : printf("La signature est invalide\n");
 
@@ -181,7 +181,7 @@ while (1)
 
 	//size_t slen = 0;
 	uint8_t signature[SIG_BIN_SZ] = {0};
-	signMsg(signature, keyfromfile, "Hello world !");
+	sign_msg(signature, keyfromfile, "Hello world !");
 
 	uint8_t hexBuffer[SIG_HEX_NT_SZ] = {0};
 	digest_bin_2_hex(hexBuffer, SIG_HEX_NT_SZ, signature, SIG_BIN_SZ);
@@ -190,7 +190,7 @@ while (1)
 
 	bool legit = false;
 
-	legit = verifyStrMsg(keyfromfile, signature, "Hello world !");
+	legit = sign_verify_str_msg(keyfromfile, signature, "Hello world !");
 
 	legit ? printf("La signature est valide\n") : printf("La signature est invalide\n");
 
@@ -199,7 +199,7 @@ while (1)
 	memset(signature, 0, SIG_BIN_SZ);
 	memset(hexBuffer, 0, SIG_HEX_NT_SZ);
 
-	signFile(signature, keyfromfile, filePath);
+	sign_file(signature, keyfromfile, filePath);
 	digest_bin_2_hex(hexBuffer, SIG_HEX_NT_SZ, signature, SIG_BIN_SZ);
 	digest_hex_pretty_print(hexBuffer);
 
@@ -207,7 +207,7 @@ while (1)
 
 	uint8_t* filePath2 = concat(DEBUG_PATH, "test.py");
 
-	legit = verifyFileSignature(keyfromfile, signature, filePath);
+	legit = sign_verify_file_sig(keyfromfile, signature, filePath);
 
 	legit ? printf("La signature est valide\n") : printf("La signature est invalide\n");
 
