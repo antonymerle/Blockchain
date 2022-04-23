@@ -1,10 +1,10 @@
 #include "sign.h"
 
 
-int signMsg(uint8_t signBin[SIG_BIN], EVP_PKEY* const skey, uint8_t* const msg)
+int signMsg(uint8_t signBin[SIG_BIN_SZ], EVP_PKEY* const skey, uint8_t* const msg)
 {
 	EVP_MD_CTX* ctx;
-	size_t siglen = SIG_BIN;			// siglen est ensuite calculée/confirmée par openSSL (SHA256 -> taille fixe)
+	size_t siglen = SIG_BIN_SZ;			// siglen est ensuite calculée/confirmée par openSSL (SHA256 -> taille fixe)
 	size_t msglen = strlen(msg);
 
 	if (!signBin || !skey || !msg)
@@ -122,7 +122,7 @@ bool verifyFileSignature(EVP_PKEY* const pubkey, uint8_t* const signature, uint8
 	uint8_t* buffer;
 	bool validity;
 	int validityStatus;
-	size_t sigLen = SIG_BIN;
+	size_t sigLen = SIG_BIN_SZ;
 
 	ctx = EVP_MD_CTX_new();
 	validity = false;
@@ -134,7 +134,7 @@ bool verifyFileSignature(EVP_PKEY* const pubkey, uint8_t* const signature, uint8
 		printf("%.2X ", signature[i]);
 	printf("\n");
 
-	buffer = malloc(READ_FILE_BUFFER_16K0);
+	buffer = malloc(READ_FILE_BUFFER_16K0_SZ);
 
 	if (filePath == NULL)
 		return 1;
@@ -153,7 +153,7 @@ bool verifyFileSignature(EVP_PKEY* const pubkey, uint8_t* const signature, uint8
 		exit(1);
 	}
 
-	memset(buffer, 0, READ_FILE_BUFFER_16K0);
+	memset(buffer, 0, READ_FILE_BUFFER_16K0_SZ);
 
 
 	if (EVP_DigestVerifyInit(ctx, NULL, EVP_sha256(), NULL, pubkey) == 0)
@@ -165,7 +165,7 @@ bool verifyFileSignature(EVP_PKEY* const pubkey, uint8_t* const signature, uint8
 
 	while (feof(fp) == 0)
 	{
-		size_t totalRead = fread(buffer, 1, READ_FILE_BUFFER_16K0, fp);
+		size_t totalRead = fread(buffer, 1, READ_FILE_BUFFER_16K0_SZ, fp);
 
 		if (EVP_DigestVerifyUpdate(ctx, buffer, totalRead) == 0)
 		{
@@ -209,12 +209,12 @@ bool verifyFileSignature(EVP_PKEY* const pubkey, uint8_t* const signature, uint8
 
 
 
-int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* const skey, uint8_t* const filePath)
+int signFile(uint8_t signBin[SIG_BIN_SZ], EVP_PKEY* const skey, uint8_t* const filePath)
 {
 	FILE* fp;
 	uint8_t* buffer;
 	EVP_MD_CTX* ctx;
-	size_t siglen = SIG_BIN;		// siglen est calculé par openSSL
+	size_t siglen = SIG_BIN_SZ;		// siglen est calculé par openSSL
 
 	fp = fopen(filePath, "rb");
 
@@ -224,7 +224,7 @@ int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* const skey, uint8_t* const file
 		return 1;
 	}
 
-	buffer = malloc(READ_FILE_BUFFER_16K0);
+	buffer = malloc(READ_FILE_BUFFER_16K0_SZ);
 
 	if (buffer == NULL)
 	{
@@ -232,7 +232,7 @@ int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* const skey, uint8_t* const file
 		exit(1);
 	}
 
-	memset(buffer, 0, READ_FILE_BUFFER_16K0);
+	memset(buffer, 0, READ_FILE_BUFFER_16K0_SZ);
 
 	ctx = EVP_MD_CTX_new();
 
@@ -250,7 +250,7 @@ int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* const skey, uint8_t* const file
 
 	while (feof(fp) == 0)
 	{
-		size_t bytesRead = fread(buffer, 1, READ_FILE_BUFFER_16K0, fp);		// read one byte 1024 * 16 times and chove it in buffer
+		size_t bytesRead = fread(buffer, 1, READ_FILE_BUFFER_16K0_SZ, fp);		// read one byte 1024 * 16 times and chove it in buffer
 
 		if (EVP_DigestSignUpdate(ctx, buffer, bytesRead) == 0)
 		{
@@ -275,7 +275,7 @@ int signFile(uint8_t signBin[SIG_BIN], EVP_PKEY* const skey, uint8_t* const file
 		return 1;
 	}
 
-	// TODO assert(siglen == SIG_BIN)
+	// TODO assert(siglen == SIG_BIN_SZ)
 
 	memset(signBin, '\0', siglen);
 

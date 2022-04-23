@@ -29,7 +29,7 @@ int hashFile(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const filePath)			// 
 		return 1;
 	}
 
-	buffer = malloc(READ_FILE_BUFFER_16K0);
+	buffer = malloc(READ_FILE_BUFFER_16K0_SZ);
 
 	if (buffer == NULL)
 	{
@@ -37,11 +37,11 @@ int hashFile(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const filePath)			// 
 		exit(1);
 	}
 
-	memset(buffer, 0, READ_FILE_BUFFER_16K0);
+	memset(buffer, 0, READ_FILE_BUFFER_16K0_SZ);
 
 	while (feof(fp) == 0)
 	{
-		size_t totalRead = fread(buffer, 1, READ_FILE_BUFFER_16K0, fp);
+		size_t totalRead = fread(buffer, 1, READ_FILE_BUFFER_16K0_SZ, fp);
 
 		if (SHA256_Update(&ctx, buffer, totalRead) == 0)
 		{

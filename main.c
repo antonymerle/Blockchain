@@ -179,11 +179,11 @@ while (1)
 	account_keys_print_pair_PEM(keyfromfile);
 
 	//size_t slen = 0;
-	uint8_t signature[SIG_BIN] = {0};
+	uint8_t signature[SIG_BIN_SZ] = {0};
 	signMsg(signature, keyfromfile, "Hello world !");
 
-	uint8_t hexBuffer[SIG_HEX_NT] = {0};
-	bin2Hex(hexBuffer, SIG_HEX_NT, signature, SIG_BIN);
+	uint8_t hexBuffer[SIG_HEX_NT_SZ] = {0};
+	bin2Hex(hexBuffer, SIG_HEX_NT_SZ, signature, SIG_BIN_SZ);
 
 	hexPrettyPrint(hexBuffer);
 
@@ -195,11 +195,11 @@ while (1)
 
 	printf("\nsign file\n");
 
-	memset(signature, 0, SIG_BIN);
-	memset(hexBuffer, 0, SIG_HEX_NT);
+	memset(signature, 0, SIG_BIN_SZ);
+	memset(hexBuffer, 0, SIG_HEX_NT_SZ);
 
 	signFile(signature, keyfromfile, filePath);
-	bin2Hex(hexBuffer, SIG_HEX_NT, signature, SIG_BIN);
+	bin2Hex(hexBuffer, SIG_HEX_NT_SZ, signature, SIG_BIN_SZ);
 	hexPrettyPrint(hexBuffer);
 
 	legit = false;
