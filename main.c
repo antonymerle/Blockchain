@@ -6,7 +6,8 @@
 #include "sign.h"
 
 #define TEST_SIGNATURE_MSG 0
-#define TEST_SIGNATURE_FILE 1
+#define TEST_SIGNATURE_FILE 0
+#define TEST_HASH_FILE 1
 
 
 int main(void)
@@ -219,6 +220,28 @@ while (1)
 	break;
 	// no leak
 }
+
+#endif
+
+#if TEST_HASH_FILE
+
+while (1)
+{
+	uint8_t* path = concat(DEBUG_PATH, "1646733517396.webm");
+
+	uint8_t bin_hash[SHA256_DIGEST_LENGTH] = { 0 };
+	uint8_t hex_hash[HEX_HASH_NT_SZ] = { 0 };
+
+	hashFile(bin_hash, path);
+	bin2Hex(hex_hash, HEX_HASH_NT_SZ, bin_hash, SHA256_DIGEST_LENGTH);
+
+	printf("Le hash de %s est :\n%s\n", path, hex_hash);
+
+	free(path);
+	break;
+}
+
+// test ok, no leak
 
 #endif
 
