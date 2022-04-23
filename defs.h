@@ -1,6 +1,6 @@
 #pragma once
 #include "common.h"
-	
+
 typedef enum KEY_TYPE {
 	PKEY,												// public key
 	SKEY												// secret key

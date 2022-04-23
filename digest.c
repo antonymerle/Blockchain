@@ -5,7 +5,7 @@
 * Writes SHA256 hash of the file into the empty message digest passed as argument.
 * The hash produced is a binary representation (32*8 bytes)
 */
-int hashFile(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const filePath)			// 256 bits, 32 bytes
+int digest_hash_file(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const filePath)			// 256 bits, 32 bytes
 {
 	FILE* fp;
 	SHA256_CTX ctx;
@@ -68,7 +68,7 @@ int hashFile(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const filePath)			// 
 * Writes SHA256 hash of the file into the empty message digest passed as argument.
 * The hash produced is a binary representation (32*8 bytes)
 */
-int hashStr(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const str)			// 256 bits, 32 bytes
+int digest_hash_str(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const str)			// 256 bits, 32 bytes
 {
 	SHA256_CTX ctx;
 
@@ -102,7 +102,7 @@ int hashStr(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const str)			// 256 bi
 * Since it is an hexadecimal representation, 4 bits are enough to encode each character (instead of 8, like for ASCII),
 * so 256 bits can be layed on 64 hex characters.
 */
-int bin2Hex(uint8_t hexmd[], IO_BUFFER_SZ OUT_SZ, uint8_t const binmd[], IO_BUFFER_SZ IN_SZ)
+int digest_bin_2_hex(uint8_t hexmd[], IO_BUFFER_SZ OUT_SZ, uint8_t const binmd[], IO_BUFFER_SZ IN_SZ)
 {
 	size_t i;
 
@@ -117,7 +117,8 @@ int bin2Hex(uint8_t hexmd[], IO_BUFFER_SZ OUT_SZ, uint8_t const binmd[], IO_BUFF
 	return 0;
 }
 
-void hexPrettyPrint(uint8_t const hexsig[])
+/* Displays 16 * 16 hex digits block */
+void digest_hex_pretty_print(uint8_t const hexsig[])
 {
 	size_t i;
 	uint8_t* p;

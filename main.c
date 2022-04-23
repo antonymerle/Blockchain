@@ -7,7 +7,7 @@
 
 #define TEST_SIGNATURE_MSG 0
 #define TEST_SIGNATURE_FILE 0
-#define TEST_HASH_FILE 1
+#define TEST_HASH_FILE 0
 
 
 int main(void)
@@ -33,7 +33,7 @@ int main(void)
 	uint8_t hexHash[HEX_HASH_NT_LEN] = { 0 };
 	//uint8_t signature[SHA256_DIGEST_LENGTH] = { 0 };
 
-	hashFile(hashResult, path);
+	digest_hash_file(hashResult, path);
 
 	hash2Hex(hexHash, hashResult);
 
@@ -41,7 +41,7 @@ int main(void)
 	printf("%s\n", hexHash);
 
 
-	hashStr(hashResult, "Hello world !");
+	digest_hash_str(hashResult, "Hello world !");
 	hash2Hex(hexHash, hashResult);
 	printf("hash string : %s\n", hexHash);
 
@@ -50,7 +50,7 @@ int main(void)
 	printf("%s %s %zu cm\n", personne.prenom, personne.nom, personne.taille);
 
 
-	hashFile(hashResult, path);
+	digest_hash_file(hashResult, path);
 
 	free(path);
 
@@ -109,8 +109,8 @@ int main(void)
 		uint8_t hashResult[SHA256_DIGEST_LENGTH] = { 0 };
 		uint8_t hexHash[HEX_HASH_NT_LEN] = { 0 };
 
-		//hashFile(hashResult, path);
-		hashStr(hashResult, "Hello world !");
+		//digest_hash_file(hashResult, path);
+		digest_hash_str(hashResult, "Hello world !");
 
 		hash2Hex(hexHash, hashResult);
 
@@ -184,9 +184,9 @@ while (1)
 	signMsg(signature, keyfromfile, "Hello world !");
 
 	uint8_t hexBuffer[SIG_HEX_NT_SZ] = {0};
-	bin2Hex(hexBuffer, SIG_HEX_NT_SZ, signature, SIG_BIN_SZ);
+	digest_bin_2_hex(hexBuffer, SIG_HEX_NT_SZ, signature, SIG_BIN_SZ);
 
-	hexPrettyPrint(hexBuffer);
+	digest_hex_pretty_print(hexBuffer);
 
 	bool legit = false;
 
@@ -200,8 +200,8 @@ while (1)
 	memset(hexBuffer, 0, SIG_HEX_NT_SZ);
 
 	signFile(signature, keyfromfile, filePath);
-	bin2Hex(hexBuffer, SIG_HEX_NT_SZ, signature, SIG_BIN_SZ);
-	hexPrettyPrint(hexBuffer);
+	digest_bin_2_hex(hexBuffer, SIG_HEX_NT_SZ, signature, SIG_BIN_SZ);
+	digest_hex_pretty_print(hexBuffer);
 
 	legit = false;
 
@@ -232,8 +232,8 @@ while (1)
 	uint8_t bin_hash[SHA256_DIGEST_LENGTH] = { 0 };
 	uint8_t hex_hash[HEX_HASH_NT_SZ] = { 0 };
 
-	hashFile(bin_hash, path);
-	bin2Hex(hex_hash, HEX_HASH_NT_SZ, bin_hash, SHA256_DIGEST_LENGTH);
+	digest_hash_file(bin_hash, path);
+	digest_bin_2_hex(hex_hash, HEX_HASH_NT_SZ, bin_hash, SHA256_DIGEST_LENGTH);
 
 	printf("Le hash de %s est :\n%s\n", path, hex_hash);
 
