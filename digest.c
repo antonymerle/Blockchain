@@ -117,6 +117,34 @@ int digest_bin_2_hex(uint8_t hexmd[], IO_BUFFER_SZ OUT_SZ, uint8_t const binmd[]
 	return 0;
 }
 
+/*
+* Writes a SHA256 binary hash/signature in binmd based on the hexmd hexadecimal representation.
+* The caller must allocate an array of SHA256_DIGEST_LENGTH on the stack to serve as a destination buffer (bin).
+* Since it is an hexadecimal representation, 4 bits are enough to encode each character (instead of 8, like for ASCII),
+* so 256 bits can be layed on 64 hex characters.
+*/
+int digest_hex_2_bin(uint8_t binmd[], IO_BUFFER_SZ OUT_SZ, uint8_t const hexmd[], IO_BUFFER_SZ IN_SZ)
+{
+	size_t len = 0;
+	if (!binmd || !hexmd || !OUT_SZ || !IN_SZ)
+		return 1;
+
+	uint8_t* temp_buffer = OPENSSL_hexstr2buf(hexmd, &len);
+
+	if (len != OUT_SZ)
+	{
+		fprintf(stderr, "Error, digest_hex_2_bin : destination buffer size. Expected %zu, got %zu\n", len, (size_t)OUT_SZ);
+		return 1;
+	}
+
+	memset(binmd, 0, len);
+	memcpy(binmd, temp_buffer, len);
+	
+	free(temp_buffer);
+	return 0;
+}
+
+
 /* Displays 16 * 16 hex digits block */
 void digest_hex_pretty_print(uint8_t const hexsig[])
 {

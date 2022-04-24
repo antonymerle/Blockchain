@@ -12,3 +12,17 @@ typedef enum IO_BUFFER_SZ {
 	SIG_BIN_SZ = 256,										// SHA256 value calculated by openSSL EVP_DigestSignFinal()
 	SIG_HEX_NT_SZ = (SIG_BIN_SZ * 2) + 1
 } IO_BUFFER_SZ;
+
+
+typedef struct Account {
+	EVP_PKEY* keys;
+	uint64_t transactions;				// TODO: mettre également une liste de transactions ? Linked List ?
+	uint64_t received;
+	uint64_t sent;
+	uint64_t balance;
+} Account;
+
+
+typedef struct Transaction {
+	uint8_t id[SHA256_DIGEST_LENGTH];
+} Transaction;

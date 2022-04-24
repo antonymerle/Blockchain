@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 #include "defs.h"
 #include "env.h"
 #include "utils.h"
