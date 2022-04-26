@@ -3,6 +3,10 @@
 
 int digest_hash_file(uint8_t hashBinResult[SHA256_DIGEST_LENGTH], uint8_t* const filePath);
 int digest_hash_str(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const str);									// 256 bits, 32 bytes
-int digest_bin_2_hex(uint8_t hexmd[], IO_BUFFER_SZ OUT_SZ, uint8_t const binmd[], IO_BUFFER_SZ IN_SZ);
+int digest_bin_2_hex(uint8_t hexmd[HEX_HASH_NT_SZ], IO_BUFFER_SZ OUT_SZ, uint8_t const binmd[SHA256_DIGEST_LENGTH], IO_BUFFER_SZ IN_SZ);		// TODO : simplifier : lock buffer size, suppress arg 2 & 4
 int digest_hex_2_bin(uint8_t binmd[], IO_BUFFER_SZ OUT_SZ, uint8_t const hexmd[], IO_BUFFER_SZ IN_SZ);
 void digest_hex_pretty_print(uint8_t const hexsig[]);
+
+int digest_concatenate_leaves_pair(uint8_t result[SHA256_DIGEST_LENGTH * 2], uint8_t left[SHA256_DIGEST_LENGTH], uint8_t right[SHA256_DIGEST_LENGTH]);
+int digest_hash_merkle_proof(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const tx_hash_buffer_bin, size_t buffer_size);
+int digest_merkle_root(uint8_t merkle_root[SHA256_DIGEST_LENGTH], size_t leaves_number, uint8_t leaves_bin[]);
