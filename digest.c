@@ -97,17 +97,29 @@ int digest_hash_str(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const str)			/
 	return 0;
 }
 
-int digest_concatenate_leaves_pair(uint8_t result[SHA256_DIGEST_LENGTH * 2], uint8_t left[SHA256_DIGEST_LENGTH], uint8_t right[SHA256_DIGEST_LENGTH])
+int digest_pair_leaves(LeavesPair* lp, uint8_t left[SHA256_DIGEST_LENGTH], uint8_t right[SHA256_DIGEST_LENGTH])
 {
-	memcpy(result, left, SHA256_DIGEST_LENGTH);
+	memcpy(lp->left, left, SHA256_DIGEST_LENGTH);
 
-	memcpy(&result[SHA256_DIGEST_LENGTH], right, SHA256_DIGEST_LENGTH);
+	memcpy(lp->right, right, SHA256_DIGEST_LENGTH);
 	return 0;
 }
 
 int digest_merkle_root(uint8_t merkle_root[SHA256_DIGEST_LENGTH], size_t leaves_number, uint8_t leaves_bin[])
 {
 
+	//LeavesPair leaves_pair[SHA256_DIGEST_LENGTH] = { 0 };
+	//uint8_t halved_leaves[SHA256_DIGEST_LENGTH] = { 0 };
+
+	//bool leaves_number_is_odd = leaves_number % 2 == 0 ? false : true;
+
+	//size_t i;
+
+	//for (i = 0; i < leaves_number; i += 2)
+	//{
+	//	digest_concatenate_leaves_pair(leaves_pair, leaves_bin[i], leaves_bin[i + 1]);
+
+	//}
 }
 
 int digest_hash_merkle_proof(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const tx_hash_buffer_bin, size_t buffer_size)

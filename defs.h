@@ -26,3 +26,8 @@ typedef struct Account {
 typedef struct Transaction {
 	uint8_t id[SHA256_DIGEST_LENGTH];
 } Transaction;
+
+typedef struct LeavesPair {
+	uint8_t left[SHA256_DIGEST_LENGTH];
+	uint8_t right[SHA256_DIGEST_LENGTH];
+} LeavesPair;

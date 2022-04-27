@@ -19,26 +19,36 @@ int main(void)
 
 #if TEST_MERKLE_TREE_2
 
-	uint8_t leaf_left[SHA256_DIGEST_LENGTH] = { 0 };
-	uint8_t leaf_right[SHA256_DIGEST_LENGTH] = { 0 };
-	uint8_t two_leaves[SHA256_DIGEST_LENGTH * 2] = { 0 };
-	uint8_t two_leaves_hex[HEX_HASH_NT_SZ] = { 0 };
+	//uint8_t leaf_left[SHA256_DIGEST_LENGTH] = { 0 };
+	//uint8_t leaf_right[SHA256_DIGEST_LENGTH] = { 0 };
+	while (1)
+	{
+		LeavesPair leaves_pair = { 0 };
+		uint8_t two_leaves[SHA256_DIGEST_LENGTH * 2] = { 0 };
+		uint8_t leave_one_hex[HEX_HASH_NT_SZ] = { 0 };
+		uint8_t leave_two_hex[HEX_HASH_NT_SZ] = { 0 };
+
+
+
+		uint8_t* const hashes[2] = {
+			"51a3dd31a49acb157d010f08e5c4774721d6dd39217866f2ed42d209b66a6ff6",
+			"50ba87bdd484f07c8c55f76a22982f987c0465fdc345381b4634a70dc0ea0b38",
+		};
+
+		digest_hex_2_bin(leaves_pair.left, SHA256_DIGEST_LENGTH, hashes[0], HEX_HASH_NT_SZ);
+		digest_hex_2_bin(leaves_pair.right, SHA256_DIGEST_LENGTH, hashes[1], HEX_HASH_NT_SZ);
+
+		digest_pair_leaves(&leaves_pair, leaves_pair.left, leaves_pair.right);
+
+		digest_bin_2_hex(leave_one_hex, HEX_HASH_NT_SZ, leaves_pair.left, SHA256_DIGEST_LENGTH);
+		digest_bin_2_hex(leave_two_hex, HEX_HASH_NT_SZ, leaves_pair.right, SHA256_DIGEST_LENGTH);
+
+		printf("hash two leaves : %s\n", leave_one_hex);
+		printf("hash two leaves : %s\n", leave_two_hex);
+
+		// no leak
+	}
 	
-
-
-	uint8_t* const hashes[2] = {
-		"51a3dd31a49acb157d010f08e5c4774721d6dd39217866f2ed42d209b66a6ff6",
-		"50ba87bdd484f07c8c55f76a22982f987c0465fdc345381b4634a70dc0ea0b38",
-	};
-
-	digest_hex_2_bin(leaf_left, SHA256_DIGEST_LENGTH, hashes[0], HEX_HASH_NT_SZ);
-	digest_hex_2_bin(leaf_right, SHA256_DIGEST_LENGTH, hashes[1], HEX_HASH_NT_SZ);
-
-	digest_concatenate_leaves_pair(two_leaves, leaf_left, leaf_right);
-
-	digest_bin_2_hex(two_leaves_hex, HEX_HASH_NT_SZ, two_leaves, SHA256_DIGEST_LENGTH);
-	
-	printf("hash two leaves : %s\n", two_leaves_hex);
 
 #endif
 #if TEST_MERKLE_TREE
