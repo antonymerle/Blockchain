@@ -18,7 +18,7 @@ int main(void)
 {
 	printf("Hello blockchain !\n");
 
-#if TEST_MERKLE_TREE_3
+#if TEST_MERKLE_TREE_3					// test digest_hash_bin_pair_leaves
 
 	while (1)
 	{

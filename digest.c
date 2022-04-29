@@ -143,18 +143,44 @@ int digest_hash_bin_pair_leaves(uint8_t bin_hash_result[SHA256_DIGEST_LENGTH], L
 int digest_merkle_root(uint8_t merkle_root[SHA256_DIGEST_LENGTH], size_t leaves_number, uint8_t leaves_bin[])
 {
 
-	//LeavesPair leaves_pair[SHA256_DIGEST_LENGTH] = { 0 };
-	//uint8_t halved_leaves[SHA256_DIGEST_LENGTH] = { 0 };
+	size_t i;
+	uint8_t* children;
+	uint8_t* p_child;					// array pour stocker les enfants de leaves_bin
+	LeavesPair lp = { 0 };				// une paire de feuilles, temporaire
 
-	//bool leaves_number_is_odd = leaves_number % 2 == 0 ? false : true;
 
-	//size_t i;
+	bool leaves_number_is_odd = leaves_number % 2 == 0 ? false : true;
 
-	//for (i = 0; i < leaves_number; i += 2)
-	//{
-	//	digest_concatenate_leaves_pair(leaves_pair, leaves_bin[i], leaves_bin[i + 1]);
+	if (leaves_number_is_odd)
+		leaves_number++;
 
-	//}
+	assert((leaves_number % 2) == 0);
+
+	// on alloue la mémoire pour le niveau supérieur de l'arbre
+	children = calloc(leaves_number / 2, SHA256_DIGEST_LENGTH);
+
+	if (!children)
+		return 1;
+
+	// take care of orphan node, duplicate it so that it can be concatenated with itself later.
+	if (leaves_number_is_odd)
+	{
+		p_child = children[leaves_number - 2];
+		memcpy(p_child, leaves_bin[leaves_number - 2], SHA256_DIGEST_LENGTH);
+	}
+
+	p_child = &children;
+
+	for (i = 0; i < leaves_number; i+=2)
+	{
+		memset(&lp, 0, sizeof(LeavesPair));
+		digest_pair_bin_leaves(&lp, leaves_bin[i], leaves_bin[i + 1]);
+		digest_hash_bin_pair_leaves(p_child, &lp);
+	}
+
+	free(children);
+
+	return 0;
 }
 
 int digest_hash_merkle_proof(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const tx_hash_buffer_bin, size_t buffer_size)
