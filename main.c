@@ -10,12 +10,81 @@
 #define TEST_HASH_FILE 0
 #define TEST_HEX_2_BIN 0
 #define TEST_MERKLE_TREE 0
-#define TEST_MERKLE_TREE_2 1
+#define TEST_MERKLE_TREE_2 0
+#define TEST_MERKLE_TREE_3 1
 
 
 int main(void)
 {
 	printf("Hello blockchain !\n");
+
+#if TEST_MERKLE_TREE_3
+
+	while (1)
+	{
+		uint8_t* const path_left_leave = concat(DEBUG_PATH, "left_leave.bin");
+		uint8_t* const path_right_leave = concat(DEBUG_PATH, "right_leave.bin");
+		uint8_t* const path_pair_leave = concat(DEBUG_PATH, "pair_leave.bin");
+
+		LeavesPair leaves_pair = { 0 };
+		uint8_t concat_leaves_bin[SHA256_DIGEST_LENGTH] = { 0 };
+		uint8_t concat_leave_hex[HEX_HASH_NT_SZ] = { 0 };
+
+
+
+		uint8_t* const hashes[2] = {
+			"51a3dd31a49acb157d010f08e5c4774721d6dd39217866f2ed42d209b66a6ff6",
+			"50ba87bdd484f07c8c55f76a22982f987c0465fdc345381b4634a70dc0ea0b38",
+		};
+
+		digest_hex_2_bin(leaves_pair.left, SHA256_DIGEST_LENGTH, hashes[0], HEX_HASH_NT_SZ);
+		digest_hex_2_bin(leaves_pair.right, SHA256_DIGEST_LENGTH, hashes[1], HEX_HASH_NT_SZ);
+
+
+
+		//digest_pair_bin_leaves(&leaves_pair, leaves_pair.left, leaves_pair.right);
+
+		digest_hash_bin_pair_leaves(concat_leaves_bin, &leaves_pair);		
+
+		digest_bin_2_hex(concat_leave_hex, HEX_HASH_NT_SZ, concat_leaves_bin, SHA256_DIGEST_LENGTH);
+	
+
+		printf("hash leave 1 : %s\n", hashes[0]);
+		printf("hash leave 2 : %s\n", hashes[1]);
+		printf("hash concatenated pair : %s\n", concat_leave_hex);
+
+		digest_wb32_file(path_left_leave, SHA256_DIGEST_LENGTH, leaves_pair.left);
+		digest_wb32_file(path_right_leave, SHA256_DIGEST_LENGTH, leaves_pair.right);
+		digest_wb64_file(path_pair_leave, SHA256_DIGEST_LENGTH, &leaves_pair);
+
+		// ATTENTION
+		// avec windows je hashe le produit du hash final sha256(32 bytes) et non les deux hash concat sha256(l1, l2);
+		// il faut donc que je wb les deux buffers dans un fichier, et ensuite que j'y applique le hash windows
+		// le fichier ir_leaves doit faire 64bytes
+
+		uint8_t hashed_file[SHA256_DIGEST_LENGTH] = { 0 };
+
+		digest_hash_file(hashed_file, path_pair_leave);
+
+		uint8_t hashed_file_hex[HEX_HASH_NT_SZ] = { 0 };
+
+		digest_bin_2_hex(hashed_file_hex, HEX_HASH_NT_SZ, hashed_file, SHA256_DIGEST_LENGTH);
+
+		assert(strcmp(hashed_file_hex, concat_leave_hex) == 0);
+
+		printf("hash file : %s\n", hashed_file_hex);
+
+
+
+		free(path_left_leave);
+		free(path_right_leave);
+		free(path_pair_leave);
+
+		//break;
+	}
+
+
+#endif
 
 #if TEST_MERKLE_TREE_2
 
@@ -24,7 +93,7 @@ int main(void)
 	while (1)
 	{
 		LeavesPair leaves_pair = { 0 };
-		uint8_t two_leaves[SHA256_DIGEST_LENGTH * 2] = { 0 };
+		//uint8_t two_leaves[SHA256_DIGEST_LENGTH * 2] = { 0 };
 		uint8_t leave_one_hex[HEX_HASH_NT_SZ] = { 0 };
 		uint8_t leave_two_hex[HEX_HASH_NT_SZ] = { 0 };
 
@@ -38,7 +107,7 @@ int main(void)
 		digest_hex_2_bin(leaves_pair.left, SHA256_DIGEST_LENGTH, hashes[0], HEX_HASH_NT_SZ);
 		digest_hex_2_bin(leaves_pair.right, SHA256_DIGEST_LENGTH, hashes[1], HEX_HASH_NT_SZ);
 
-		digest_pair_leaves(&leaves_pair, leaves_pair.left, leaves_pair.right);
+		digest_pair_bin_leaves(&leaves_pair, leaves_pair.left, leaves_pair.right);
 
 		digest_bin_2_hex(leave_one_hex, HEX_HASH_NT_SZ, leaves_pair.left, SHA256_DIGEST_LENGTH);
 		digest_bin_2_hex(leave_two_hex, HEX_HASH_NT_SZ, leaves_pair.right, SHA256_DIGEST_LENGTH);

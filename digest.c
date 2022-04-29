@@ -97,11 +97,46 @@ int digest_hash_str(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const str)			/
 	return 0;
 }
 
-int digest_pair_leaves(LeavesPair* lp, uint8_t left[SHA256_DIGEST_LENGTH], uint8_t right[SHA256_DIGEST_LENGTH])
+int digest_pair_bin_leaves(LeavesPair* lp, uint8_t left[SHA256_DIGEST_LENGTH], uint8_t right[SHA256_DIGEST_LENGTH])
 {
 	memcpy(lp->left, left, SHA256_DIGEST_LENGTH);
 
 	memcpy(lp->right, right, SHA256_DIGEST_LENGTH);
+	return 0;
+}
+
+int digest_hash_bin_pair_leaves(uint8_t bin_hash_result[SHA256_DIGEST_LENGTH], LeavesPair* const lp)
+{
+	SHA256_CTX ctx;
+
+	// TODO : do some hardening.
+
+	memset(bin_hash_result, '\0', SHA256_DIGEST_LENGTH);
+
+	if (SHA256_Init(&ctx) == 0)
+	{
+		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		return 1;
+	}
+
+	if (SHA256_Update(&ctx, lp->left, SHA256_DIGEST_LENGTH) == 0)
+	{
+		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		return -1;
+	}
+
+	if (SHA256_Update(&ctx, lp->right, SHA256_DIGEST_LENGTH) == 0)
+	{
+		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		return -1;
+	}
+
+	if (SHA256_Final(bin_hash_result, &ctx) == 0)
+	{
+		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		return -1;
+	}
+
 	return 0;
 }
 
@@ -226,4 +261,49 @@ void digest_hex_pretty_print(uint8_t const hexsig[])
 		i++;
 		i % 16 ? putchar(' ') : putchar('\n');
 	}
+}
+
+int digest_wb32_file(uint8_t* const path, size_t sz, uint8_t* bin_buffer)
+{
+	FILE* fp;
+
+	if (path == NULL)
+		return 1;
+
+	fp = fopen(path, "wb");
+
+	if (fp == NULL)
+	{
+		fprintf(stderr, "%s : %s\n", "Impossible d'ouvrir le chemin", path);
+		return 1;
+	}
+
+	fwrite(bin_buffer, sz, 1, fp);
+
+	fclose(fp);
+
+	return 0;
+}
+
+int digest_wb64_file(uint8_t* const path, size_t sz, LeavesPair* lp)
+{
+	FILE* fp;
+
+	if (path == NULL)
+		return 1;
+
+	fp = fopen(path, "wb");
+
+	if (fp == NULL)
+	{
+		fprintf(stderr, "%s : %s\n", "Impossible d'ouvrir le chemin", path);
+		return 1;
+	}
+
+	fwrite(lp->left, sz, 1, fp);
+	fwrite(lp->right, sz, 1, fp);
+
+	fclose(fp);
+
+	return 0;
 }
