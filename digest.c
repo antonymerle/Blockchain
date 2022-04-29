@@ -246,25 +246,66 @@ int digest_bin_2_hex(uint8_t hexmd[HEX_HASH_NT_SZ], IO_BUFFER_SZ OUT_SZ, uint8_t
 * Since it is an hexadecimal representation, 4 bits are enough to encode each character (instead of 8, like for ASCII),
 * so 256 bits can be layed on 64 hex characters.
 */
-int digest_hex_2_bin(uint8_t binmd[], IO_BUFFER_SZ OUT_SZ, uint8_t const hexmd[], IO_BUFFER_SZ IN_SZ)
+int digest_hex_2_bin(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t const hexmd[HEX_HASH_NT_SZ])
 {
 	size_t len = 0;
-	if (!(&binmd[0]) || !hexmd || !OUT_SZ || !IN_SZ)
+	if (!(&binmd[0]) || !hexmd)
 		return 1;
 
 	uint8_t* temp_buffer = OPENSSL_hexstr2buf(hexmd, (long*)&len);
 
-	if (len != OUT_SZ)
-	{
-		fprintf(stderr, "Error, digest_hex_2_bin : destination buffer size. Expected %zu, got %zu\n", len, (size_t)IN_SZ);
-		return 1;
-	}
-
 	memset(binmd, 0, len);
-	memcpy(binmd, temp_buffer, OUT_SZ);
-	
+	memcpy(binmd, temp_buffer, SHA256_DIGEST_LENGTH);
+
 	free(temp_buffer);
 	return 0;
+}
+
+
+
+/*
+* Writes a SHA256 binary hash/signature in binmd based on the hexmd hexadecimal representation.
+* The caller must allocate an array of SHA256_DIGEST_LENGTH on the stack to serve as a destination buffer (bin).
+* Since it is an hexadecimal representation, 4 bits are enough to encode each character (instead of 8, like for ASCII),
+* so 256 bits can be layed on 64 hex characters.
+*/
+uint8_t* digest_hex_2_bin_bulk(uint8_t* bin_array, uint8_t* const const hexmd[HEX_HASH_NT_SZ], size_t count)
+{
+	size_t i;
+	size_t len = 0;
+	//uint8_t* temp_buffer = NULL;
+	uint8_t* p_bin_array;
+
+	if ( !hexmd || count <= 0)
+		return 1;
+
+	bin_array = calloc(count, SHA256_DIGEST_LENGTH);
+
+	if (!bin_array)
+	{
+		fprintf(stderr, "digest_hex_2_bin() : Cannot allocate memory.\n");
+		exit(1);
+	}
+
+	p_bin_array = &bin_array[0];
+
+	for (i = 0; i < count; i++)
+	{
+		uint8_t* temp_buffer = OPENSSL_hexstr2buf(hexmd[i], (long*)&len);
+
+		memcpy(&p_bin_array[i * SHA256_DIGEST_LENGTH], temp_buffer, SHA256_DIGEST_LENGTH);
+
+		free(temp_buffer);
+		temp_buffer = NULL;
+	}
+
+	//if (len != OUT_SZ)
+	//{
+	//	fprintf(stderr, "Error, digest_hex_2_bin : destination buffer size. Expected %zu, got %zu\n", len, (size_t)IN_SZ);
+	//	return 1;
+	//}
+	
+	return bin_array;
 }
 
 
