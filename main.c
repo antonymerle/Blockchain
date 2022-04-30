@@ -41,6 +41,10 @@ int main(void)
 
 		uint8_t* bin_hashes = NULL;
 		bin_hashes = digest_hex_2_bin_bulk(bin_hashes, hashes, 13);
+
+		uint8_t* dummy = NULL;
+		digest_merkle_root(dummy, 13, bin_hashes);
+
 		free(bin_hashes);
 	}
 	

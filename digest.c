@@ -140,12 +140,12 @@ int digest_hash_bin_pair_leaves(uint8_t bin_hash_result[SHA256_DIGEST_LENGTH], L
 	return 0;
 }
 
-int digest_merkle_root(uint8_t merkle_root[SHA256_DIGEST_LENGTH], size_t leaves_number, uint8_t leaves_bin[])
+int digest_merkle_root(uint8_t* merkle_root, size_t leaves_number, uint8_t leaves_bin[])
 {
 
 	size_t i;
-	uint8_t* children;
-	uint8_t* p_child;					// array pour stocker les enfants de leaves_bin
+	uint8_t* children;					// array pour stocker les enfants de leaves_bin
+	uint8_t* p_child;					
 	LeavesPair lp = { 0 };				// une paire de feuilles, temporaire
 
 
@@ -162,20 +162,36 @@ int digest_merkle_root(uint8_t merkle_root[SHA256_DIGEST_LENGTH], size_t leaves_
 	if (!children)
 		return 1;
 
-	// take care of orphan node, duplicate it so that it can be concatenated with itself later.
+	// take care of orphan node, concatenate it with itself at the end of children[].
 	if (leaves_number_is_odd)
 	{
-		p_child = children[leaves_number - 2];
-		memcpy(p_child, leaves_bin[leaves_number - 2], SHA256_DIGEST_LENGTH);
+		p_child = &children[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)];
+		memcpy(p_child, &leaves_bin[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)], SHA256_DIGEST_LENGTH);
+		p_child = &children[(leaves_number * SHA256_DIGEST_LENGTH) - SHA256_DIGEST_LENGTH];
+		memcpy(p_child, &leaves_bin[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)], SHA256_DIGEST_LENGTH);
 	}
 
-	p_child = &children;
+	// ok
 
-	for (i = 0; i < leaves_number; i+=2)
+	p_child = children;
+
+	if (leaves_number_is_odd)
 	{
-		memset(&lp, 0, sizeof(LeavesPair));
-		digest_pair_bin_leaves(&lp, leaves_bin[i], leaves_bin[i + 1]);
-		digest_hash_bin_pair_leaves(p_child, &lp);
+		for (i = 0; i < leaves_number - 2; i += 2)				// -2 : last leaf has already been concatenated at the end of children[]
+		{
+			memset(&lp, 0, sizeof(LeavesPair));
+			digest_pair_bin_leaves(&lp, &leaves_bin[i], &leaves_bin[i + 1]);
+			digest_hash_bin_pair_leaves(&p_child[i * SHA256_DIGEST_LENGTH], &lp);
+		}
+	}
+	else
+	{
+		for (i = 0; i < leaves_number; i += 2)
+		{
+			memset(&lp, 0, sizeof(LeavesPair));
+			digest_pair_bin_leaves(&lp, &leaves_bin[i], &leaves_bin[i + 1]);
+			digest_hash_bin_pair_leaves(&p_child[i * SHA256_DIGEST_LENGTH], &lp);
+		}
 	}
 
 	free(children);
@@ -277,7 +293,7 @@ uint8_t* digest_hex_2_bin_bulk(uint8_t* bin_array, uint8_t* const const hexmd[HE
 	uint8_t* p_bin_array;
 
 	if ( !hexmd || count <= 0)
-		return 1;
+		return NULL;
 
 	bin_array = calloc(count, SHA256_DIGEST_LENGTH);
 
