@@ -1,9 +1,11 @@
 #pragma once
 #include "common.h"
 
+#define TPS_MAX		32*32*8									// bytes*transactions*minutes
+
 typedef enum KEY_TYPE {
-	PKEY,												// public key
-	SKEY												// secret key
+	PKEY,													// public key
+	SKEY													// secret key
 } KEY_TYPE;
 
 typedef enum IO_BUFFER_SZ {
@@ -16,7 +18,7 @@ typedef enum IO_BUFFER_SZ {
 
 typedef struct Account {
 	EVP_PKEY* keys;
-	uint64_t transactions;				// TODO: mettre également une liste de transactions ? Linked List ?
+	uint64_t transactions;									// TODO: mettre également une liste de transactions ? Linked List ?
 	uint64_t received;
 	uint64_t sent;
 	uint64_t balance;
