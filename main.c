@@ -23,6 +23,9 @@ int main(void)
 
 	while (1)
 	{
+		uint32_t endianess = 0xA0B70708;
+		uint32_t* p = &endianess;
+
 		uint8_t* const const hashes[4] = {
 			"8c14f0db3df150123e6f3dbbf30f8b955a8249b62ac1d1ff16284aefa3d06d87",
 			"fff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4",
@@ -44,7 +47,7 @@ int main(void)
 		};
 
 		uint8_t* bin_hashes = NULL;
-		bin_hashes = digest_hex_2_bin_bulk(bin_hashes, hashes, 4);
+		bin_hashes = digest_hex_2_bin_bulk_to_lendian(bin_hashes, hashes, 4);
 
 		uint8_t merkle_root[SHA256_DIGEST_LENGTH] = {0};
 		digest_merkle_root(merkle_root, 4, bin_hashes);

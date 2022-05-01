@@ -335,6 +335,57 @@ uint8_t* digest_hex_2_bin_bulk(uint8_t* bin_array, uint8_t* const const hexmd[HE
 }
 
 
+/*
+* les txids sont représentées en HEX big endian
+* quand on les binarise, cet ordre est conservé (big endian)
+* or, les txids_bin doivent être traitées en little endian
+*/
+uint8_t* digest_hex_2_bin_bulk_to_lendian(uint8_t* bin_array, uint8_t* const const hexmd[HEX_HASH_NT_SZ], size_t count)
+{
+	size_t i, j, k;
+	size_t len = 0;
+	uint8_t* p_bin_array;
+
+	if (!hexmd || count <= 0)
+		return NULL;
+
+	bin_array = calloc(count, SHA256_DIGEST_LENGTH);
+
+	if (!bin_array)
+	{
+		fprintf(stderr, "digest_hex_2_bin() : Cannot allocate memory.\n");
+		exit(1);
+	}
+
+	p_bin_array = &bin_array[0];
+
+	for (i = 0; i < count; i++)
+	{
+		uint8_t* temp_buffer = OPENSSL_hexstr2buf(hexmd[i], (long*)&len);
+		uint8_t temp_buffer_lendian[SHA256_DIGEST_LENGTH] = {0};		// TODO : reverse bytes
+		uint8_t* p_temp_buffer_lendian = temp_buffer_lendian;
+
+		// Here we swap bytes order from BE to LE
+
+		j = 0;
+		k = (size_t)SHA256_DIGEST_LENGTH - 1;
+
+		while (j < SHA256_DIGEST_LENGTH)
+		{
+			temp_buffer_lendian[j++] = temp_buffer[k--];
+		}
+
+		// TODO : extra copy, why not dump LE bytes directly to bin_array ?
+		memcpy(&p_bin_array[i * SHA256_DIGEST_LENGTH], temp_buffer_lendian, SHA256_DIGEST_LENGTH);
+
+		free(temp_buffer);
+		temp_buffer = NULL;
+	}
+
+	return bin_array;
+}
+
+
 /* Displays 16 * 16 hex digits block */
 void digest_hex_pretty_print(uint8_t const hexsig[])
 {
