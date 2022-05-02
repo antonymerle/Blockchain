@@ -97,6 +97,35 @@ int digest_hash_str(uint8_t binmd[SHA256_DIGEST_LENGTH], uint8_t* const str)			/
 	return 0;
 }
 
+int digest_hash_bin(uint8_t ouput_bin_buffer[SHA256_DIGEST_LENGTH], uint8_t const input_bin_buf[SHA256_DIGEST_LENGTH])
+{
+	SHA256_CTX ctx;
+
+	// TODO : do some hardening.
+
+	memset(ouput_bin_buffer, '\0', SHA256_DIGEST_LENGTH);
+
+	if (SHA256_Init(&ctx) == 0)
+	{
+		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		return 1;
+	}
+
+	if (SHA256_Update(&ctx, input_bin_buf, SHA256_DIGEST_LENGTH) == 0)
+	{
+		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		return -1;
+	}
+
+	if (SHA256_Final(ouput_bin_buffer, &ctx) == 0)
+	{
+		fprintf(stderr, "%s", ERR_error_string(ERR_get_error(), NULL));
+		return -1;
+	}
+
+	return 0;
+}
+
 int digest_pair_bin_leaves(LeavesPair* lp, uint8_t left[SHA256_DIGEST_LENGTH], uint8_t right[SHA256_DIGEST_LENGTH])
 {
 	memcpy(lp->left, left, SHA256_DIGEST_LENGTH);
@@ -140,13 +169,18 @@ int digest_hash_bin_pair_leaves(uint8_t bin_hash_result[SHA256_DIGEST_LENGTH], L
 	return 0;
 }
 
+/* Recieves little endian binary leaves and returns a big endian merkle root */
 int digest_merkle_root(uint8_t merkle_root[SHA256_DIGEST_LENGTH], size_t leaves_number, uint8_t leaves_bin[])
 {
 
-	size_t i;
+	size_t i, j, k, l;
 	uint8_t* p_child;					
-	LeavesPair lp = { 0 };				// une paire de feuilles, temporaire
-	uint8_t children[TPS_MAX * SHA256_DIGEST_LENGTH] = { 0 };					// array pour stocker les enfants de leaves_bin
+	LeavesPair lp = { 0 };												// une paire de feuilles, temporaire
+	uint8_t cat_leaves_first_hash[SHA256_DIGEST_LENGTH] = {0};								// hash en deux passes : sert à stocker la 1ère
+	uint8_t cat_leaves_second_hash[SHA256_DIGEST_LENGTH] = { 0 };								// hash en deux passes : sert à stocker la 2nde
+	uint8_t children[TPS_MAX * SHA256_DIGEST_LENGTH] = { 0 };			// array pour stocker les hashs finaux des enfants de leaves_bin
+	uint8_t cat_orphan_leave_first_hash[SHA256_DIGEST_LENGTH];
+	uint8_t cat_orphan_leave_second_hash[SHA256_DIGEST_LENGTH];
 
 	bool leaves_number_is_odd = leaves_number % 2 == 0 ? false : true;
 
@@ -166,25 +200,40 @@ int digest_merkle_root(uint8_t merkle_root[SHA256_DIGEST_LENGTH], size_t leaves_
 	// take care of orphan node, concatenate it with itself at the end of children[].
 	if (leaves_number_is_odd)
 	{
-		p_child = &children[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)];
+		memset(cat_orphan_leave_first_hash, 0, SHA256_DIGEST_LENGTH);					// prépare le buffer temporaire pour la feuille orpheline
+		memset(cat_orphan_leave_second_hash, 0, SHA256_DIGEST_LENGTH);					// prépare le buffer temporaire pour la feuille orpheline
+		memset(&lp, 0, sizeof(LeavesPair));
+
+		digest_pair_bin_leaves(&lp, &leaves_bin[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)], &leaves_bin[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)]);
+		digest_hash_bin_pair_leaves(cat_orphan_leave_first_hash, &lp);
+		digest_hash_bin(cat_orphan_leave_second_hash, cat_orphan_leave_first_hash);
+
+		memcpy(&children[(leaves_number * SHA256_DIGEST_LENGTH) - SHA256_DIGEST_LENGTH], cat_orphan_leave_second_hash, SHA256_DIGEST_LENGTH);
+
+
+		/*p_child = &children[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)];
 		memcpy(p_child, &leaves_bin[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)], SHA256_DIGEST_LENGTH);
 		p_child = &children[(leaves_number * SHA256_DIGEST_LENGTH) - SHA256_DIGEST_LENGTH];
-		memcpy(p_child, &leaves_bin[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)], SHA256_DIGEST_LENGTH);
+		memcpy(p_child, &leaves_bin[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)], SHA256_DIGEST_LENGTH);*/
 	}
 
 	// ok
 
 	p_child = children;
 
-	size_t j;
-
 	if (leaves_number_is_odd)
 	{
-		for (i = j = 0; j < leaves_number; i++, j+=2)				// -2 : last leaf has already been concatenated at the end of children[]
+		for (i = j = 0; j < leaves_number - 2; i++, j+=2)				// -2 : last leaf has already been concatenated at the end of children[]
 		{
 			memset(&lp, 0, sizeof(LeavesPair));
+			memset(cat_orphan_leave_first_hash, 0, SHA256_DIGEST_LENGTH);					// prépare le buffer temporaire pour la feuille orpheline
+			memset(cat_orphan_leave_second_hash, 0, SHA256_DIGEST_LENGTH);					// prépare le buffer temporaire pour la feuille orpheline
+
 			digest_pair_bin_leaves(&lp, &leaves_bin[j * SHA256_DIGEST_LENGTH], &leaves_bin[j * SHA256_DIGEST_LENGTH + SHA256_DIGEST_LENGTH]);
-			digest_hash_bin_pair_leaves(&p_child[i * SHA256_DIGEST_LENGTH], &lp);
+
+			digest_hash_bin_pair_leaves(cat_orphan_leave_first_hash, &lp);
+			digest_hash_bin(cat_orphan_leave_second_hash, cat_orphan_leave_first_hash);
+			memcpy(&p_child[i * SHA256_DIGEST_LENGTH], cat_orphan_leave_second_hash, SHA256_DIGEST_LENGTH);
 		}
 	}
 	else
@@ -192,15 +241,36 @@ int digest_merkle_root(uint8_t merkle_root[SHA256_DIGEST_LENGTH], size_t leaves_
 		for (i = j = 0; j < leaves_number; i++, j += 2)
 		{
 			memset(&lp, 0, sizeof(LeavesPair));
+			memset(cat_orphan_leave_first_hash, 0, SHA256_DIGEST_LENGTH);					// prépare le buffer temporaire pour la feuille orpheline
+			memset(cat_orphan_leave_second_hash, 0, SHA256_DIGEST_LENGTH);					// prépare le buffer temporaire pour la feuille orpheline
+
 			digest_pair_bin_leaves(&lp, &leaves_bin[j * SHA256_DIGEST_LENGTH], &leaves_bin[j * SHA256_DIGEST_LENGTH + SHA256_DIGEST_LENGTH]);
-			digest_hash_bin_pair_leaves(&p_child[i * SHA256_DIGEST_LENGTH], &lp);
+
+			digest_hash_bin_pair_leaves(cat_orphan_leave_first_hash, &lp);
+			digest_hash_bin(cat_orphan_leave_second_hash, cat_orphan_leave_first_hash);
+			memcpy(&p_child[i * SHA256_DIGEST_LENGTH], cat_orphan_leave_second_hash, SHA256_DIGEST_LENGTH);
+
+			//digest_pair_bin_leaves(&lp, &leaves_bin[j * SHA256_DIGEST_LENGTH], &leaves_bin[j * SHA256_DIGEST_LENGTH + SHA256_DIGEST_LENGTH]);
+			//digest_hash_bin_pair_leaves(&p_child[i * SHA256_DIGEST_LENGTH], &lp);
 		}
 	}
 
 	// exit condition
 	if (leaves_number == 2)
 	{
-		memcpy(merkle_root, children, SHA256_DIGEST_LENGTH);
+
+		// Here we swap back bytes order from LE to BE
+
+		k = 0;
+		l = (size_t)SHA256_DIGEST_LENGTH - 1;
+
+		while (k < SHA256_DIGEST_LENGTH)
+		{
+			merkle_root[k++] = children[l--];
+		}
+
+
+		//memcpy(merkle_root, children, SHA256_DIGEST_LENGTH);
 		return 0;
 	}
 
