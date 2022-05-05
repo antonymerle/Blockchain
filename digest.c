@@ -399,7 +399,7 @@ uint8_t* digest_hex_2_bin_bulk(uint8_t* bin_array, uint8_t* const const hexmd[HE
  * quand on les binarise, cet ordre est conserv� (big endian)
  * or, les txids_bin doivent �tre trait�es en little endian
  */
-uint8_t* digest_hex_2_bin_bulk_to_lendian(uint8_t* const const hexmd[HEX_HASH_NT_SZ], size_t count)
+uint8_t* digest_hex_2_bin_bulk_to_lendian(uint8_t* const const hexmd[], size_t count)
 {
   size_t i, j, k;
   size_t len = 0;
