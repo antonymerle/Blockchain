@@ -170,12 +170,11 @@ int digest_hash_bin_pair_leaves(uint8_t bin_hash_result[SHA256_DIGEST_LENGTH], L
 /* Recieves little endian binary leaves and returns a big endian merkle root */
 int digest_merkle_root(uint8_t merkle_root[SHA256_DIGEST_LENGTH], size_t leaves_number, uint8_t leaves_bin[])
 {
-
   size_t i, j, k, l;
   uint8_t* p_child;
   LeavesPair lp = { 0 };                                        // une paire de feuilles, temporaire
-  uint8_t cat_leaves_first_hash[SHA256_DIGEST_LENGTH] = { 0 };  // hash en deux passes : sert � stocker la 1�re
-  uint8_t cat_leaves_second_hash[SHA256_DIGEST_LENGTH] = { 0 }; // hash en deux passes : sert � stocker la 2nde
+  uint8_t cat_leaves_first_hash[SHA256_DIGEST_LENGTH] = { 0 };  // hash en deux passes : 1re passe
+  uint8_t cat_leaves_second_hash[SHA256_DIGEST_LENGTH] = { 0 }; // hash en deux passes : 2nde passe
   uint8_t children[TPS_MAX * SHA256_DIGEST_LENGTH] = { 0 };     // array pour stocker les hashs finaux des enfants de leaves_bin
   uint8_t cat_orphan_leave_first_hash[SHA256_DIGEST_LENGTH];
   uint8_t cat_orphan_leave_second_hash[SHA256_DIGEST_LENGTH];
@@ -196,15 +195,15 @@ int digest_merkle_root(uint8_t merkle_root[SHA256_DIGEST_LENGTH], size_t leaves_
   // take care of orphan node, concatenate it with itself at the end of children[].
   if (leaves_number_is_odd)
   {
-    memset(cat_orphan_leave_first_hash, 0, SHA256_DIGEST_LENGTH);  // pr�pare le buffer temporaire pour la feuille orpheline
-    memset(cat_orphan_leave_second_hash, 0, SHA256_DIGEST_LENGTH); // pr�pare le buffer temporaire pour la feuille orpheline
+    memset(cat_orphan_leave_first_hash, 0, SHA256_DIGEST_LENGTH);  // prepare le buffer temporaire pour la feuille orpheline
+    memset(cat_orphan_leave_second_hash, 0, SHA256_DIGEST_LENGTH); // prepare le buffer temporaire pour la feuille orpheline
     memset(&lp, 0, sizeof(LeavesPair));
 
     digest_pair_bin_leaves(&lp, &leaves_bin[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)], &leaves_bin[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)]);
     digest_hash_bin_pair_leaves(cat_orphan_leave_first_hash, &lp);
     digest_hash_bin(cat_orphan_leave_second_hash, cat_orphan_leave_first_hash);
 
-    memcpy(&children[(leaves_number * SHA256_DIGEST_LENGTH) - SHA256_DIGEST_LENGTH], cat_orphan_leave_second_hash, SHA256_DIGEST_LENGTH);
+    memcpy(&children[((leaves_number / 2) * SHA256_DIGEST_LENGTH) - SHA256_DIGEST_LENGTH], cat_orphan_leave_second_hash, SHA256_DIGEST_LENGTH);     // copie à la fin de l'array des enfants qui est 2x plus petit
 
     /*p_child = &children[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)];
     memcpy(p_child, &leaves_bin[(leaves_number * SHA256_DIGEST_LENGTH) - (SHA256_DIGEST_LENGTH * 2)], SHA256_DIGEST_LENGTH);

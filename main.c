@@ -5,7 +5,7 @@
 #include "digest.h"
 #include "sign.h"
 
-#define DEBUG_TXID_NUMBER 8
+#define DEBUG_TXID_NUMBER 9
 
 #define TEST_SIGNATURE_MSG 0
 #define TEST_SIGNATURE_FILE 0
@@ -30,15 +30,32 @@ int main(void)
     uint8_t* const const hashes[DEBUG_TXID_NUMBER] = {
 
       //TODO : debug digest_hex_2_bin_bulk_to_lendian fails when txid number is odd, and needs to be made even
+
+        // Bloc 100002
+
+        "ef1d870d24c85b89d92ad50f4631026f585d6a34e972eaf427475e5d60acf3a3",
+        "f9fc751cb7dc372406a9f8d738d5e6f8f63bab71986a39cf36ee70ee17036d07",
+        "db60fb93d736894ed0b86cb92548920a3fe8310dd19b0da7ad97e48725e1e12e",
+        "220ebc64e21abece964927322cba69180ed853bb187fbc6923bac7d010b9d87a",
+        "71b3dbaca67e9f9189dad3617138c19725ab541ef0b49c05a94913e9f28e3f4e",
+        "fe305e1ed08212d76161d853222048eea1f34af42ea0e197896a269fbf8dc2e0",
+        "21d2eb195736af2a40d42107e6abd59c97eb6cffd4a5a7a7709e86590ae61987",
+        "dd1fd2a6fc16404faf339881a90adbde7f4f728691ac62e8f168809cdfae1053",
+        "74d681e0e03bafa802c8aa084379aa98d9fcd632ddc2ed9782b586ec87451f20"
+
+      // Bloc 99918 --> pass after bug correction (odd txid path in digest_hex_2_bin_bulk_to_lendian)
+        //"4583f6c33ed46caeffb81848f43f46acfb3bfd5ea6b72e366eae84dc6209527c",
+        //"2c709102ef47eb1662d30c2ca7c4d9cbf236d3456d1e2ce92415ea85cd76b7f5",
+        //"ad9f55f495e4df7424aa27a4544b237637399380fae0cca047cd3dc4472399da"
       // BLOC 99922 --> pass
-"1da6b84c3353aeaa55c81a40be13eeb74a48e9571b91e4d4f0b79b0a5ebb9f6d",
-"6387a76e8ba6648c430ffb02a7fc40dc9cdba4ad1d4388a2036378d2c92b3aad",
-"6af613dcd5e94356f61aecf47e1383d57d8b2fc9de4a8e85ffe29f6433a49a0b",
-"e7ea6b0f91245ad1341b7f1ac1beba7bf319c872c4723d15284444f7acf720c0",
-"b78e43f34eb69877056c78044f64c00bcd3ea48de9b69e32bf5d7c5849183867",
-"9bcd504c4284b984f903f35fa6fdee2fa01524fba81c5f20e041f14fdb70051e",
-"f76bc9465bf0d669508e6e21ba07840cefcc02a1c492ae31f736d82fc3d86f4d",
-"280a88334507248aa0696d20402e11b5622eb170cfbf31013a0d83c54b34a8fa"
+//"1da6b84c3353aeaa55c81a40be13eeb74a48e9571b91e4d4f0b79b0a5ebb9f6d",
+//"6387a76e8ba6648c430ffb02a7fc40dc9cdba4ad1d4388a2036378d2c92b3aad",
+//"6af613dcd5e94356f61aecf47e1383d57d8b2fc9de4a8e85ffe29f6433a49a0b",
+//"e7ea6b0f91245ad1341b7f1ac1beba7bf319c872c4723d15284444f7acf720c0",
+//"b78e43f34eb69877056c78044f64c00bcd3ea48de9b69e32bf5d7c5849183867",
+//"9bcd504c4284b984f903f35fa6fdee2fa01524fba81c5f20e041f14fdb70051e",
+//"f76bc9465bf0d669508e6e21ba07840cefcc02a1c492ae31f736d82fc3d86f4d",
+//"280a88334507248aa0696d20402e11b5622eb170cfbf31013a0d83c54b34a8fa"
 
 // BLOC 99933 --> pass
 // "863cad15f708c2e133496207448c1f9cab36aaab3f43657ce36120e571d62681",
